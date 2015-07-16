@@ -6,3 +6,5 @@ Mesh triangle reduction using quadrics
 **Alternative Download** [You can fetch the code here](http://voxels.blogspot.jp/2014/05/quadric-mesh-simplification-with-source.html)
 
 **Usage** The functionality is contained in Simplify.h. The function to call is *simplify_mesh(target_count)*. The code is kept pretty slim, so the main method has just around 400 lines of code. 
+
+License : MIT
