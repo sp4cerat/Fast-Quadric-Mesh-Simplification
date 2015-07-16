@@ -1,0 +1,71 @@
+#version 330 core
+
+layout(location = 0, index = 0) out vec4 fragColor;
+
+//uniform sampler2D texDiffuse; 
+//uniform sampler2D texAmbient; 
+uniform vec3 lightPos;
+uniform vec4 ambient;
+uniform vec4 diffuse;
+uniform vec4 specular;
+
+//in vec2 tex_uv;
+
+
+vec4 bspline_3d_fp( sampler2D texin, vec2 vecin)
+{
+	vec2 tsize = vec2(300.0,300.0);
+	vec2 one_tsize = vec2(1.0/tsize.x,1.0/tsize.y);
+	vec2 coord_grid = vecin*tsize - vec2(0.5,0.5);
+	vec2 fraction = fract(coord_grid);
+	vec2 one_frac = 1.0 - fraction;
+	vec2 one_frac2 = one_frac * one_frac;
+	vec2 fraction2 = fraction * fraction;
+	vec2 w0 = 1.0/6.0 * one_frac2 * one_frac;
+	vec2 w1 = 2.0/3.0 - 0.5 * fraction2 * (2.0-fraction);
+	vec2 w2 = 2.0/3.0 - 0.5 * one_frac2 * (2.0-one_frac);
+	vec2 w3 = 1.0/6.0 * fraction2 * fraction;
+	vec2 g0 = w0 + w1;
+	vec2 g1 = w2 + w3;
+	vec2 index = coord_grid-fraction;
+	vec2 h0 = ((w1 / g0) - 0.5 + index)*one_tsize;
+	vec2 h1 = ((w3 / g1) + 1.5 + index)*one_tsize;
+
+	// fetch the four linear interpolations
+	vec4 tex000 = texture2D(texin, vec2(h0.x, h0.y));
+	vec4 tex001 = texture2D(texin, vec2(h0.x, h1.y));
+	tex000 = mix(tex001, tex000, g0.y);
+	vec4 tex010 = texture2D(texin, vec2(h1.x, h0.y));
+	vec4 tex011 = texture2D(texin, vec2(h1.x, h1.y));
+	tex010 = mix(tex011, tex010, g0.y);
+
+	tex000 = mix(tex010, tex000, g0.x);
+	
+	return tex000;
+}
+
+
+in vec3 vertex;
+in vec4 vertex4;
+in vec2 tex_uv;
+in vec3 normalvect;
+in vec3 camPos;
+
+void main(void)
+{
+	vec4 tex_dif=	vec4(0.5,0.5,0.5,1.0);//texture2D(texDiffuse,tex_uv.xy) ;
+	vec4 tex_amb=	vec4(0.5,0.5,0.5,1.0);//texture2D(texAmbient,tex_uv.xy);
+    vec3 normalVec= normalize(normalvect);
+    vec3 lightVec = vec3( normalize(lightPos-vertex) );
+    vec3 camVec   = vec3( normalize(camPos-vertex) );
+    
+    float l = clamp ( dot ( lightVec , normalVec ) ,0.0,1.0 );
+    vec3  r = reflect ( -camVec, normalVec );
+    float m = clamp ( dot ( r , lightVec ) ,0.0,1.0);
+    float q = m*m; q=q*q;
+	float li = (dot(normalvect,vec3(0,0,1))*0.5+0.5)*0.5;//normalize(lightvec));
+	 
+	vec4 color = tex_dif * diffuse * 4.0 * (li)*1.0 + ( (li*li*li*li) * specular) *1.0+ tex_amb*ambient;
+	color.a=0.2;
+	fragColor=color;
+}

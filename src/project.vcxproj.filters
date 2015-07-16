@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ext">
+      <UniqueIdentifier>{16282071-59d8-45a0-9a2b-fabb60d3b602}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{50016b39-fc49-4784-b5fc-cff9df83ab6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{fe22eaac-62b1-43cf-8842-659d8adbc889}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{0ae509a5-ca43-44a1-a11a-5a240dbcb729}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ext\glew.cpp">
+      <Filter>ext</Filter>
+    </ClCompile>
+    <ClCompile Include="Bmp.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="Core.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="VecMath.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ext\glew.h">
+      <Filter>ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ext\glxew.h">
+      <Filter>ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ext\wglew.h">
+      <Filter>ext</Filter>
+    </ClInclude>
+    <ClInclude Include="Bmp.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="glsl.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="opengl_FBO.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="VecMath.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="OBJ.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Simplify.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shader\normal\frag.txt">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\shader\normal\vs.txt">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+</Project>
