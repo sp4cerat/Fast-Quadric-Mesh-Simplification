@@ -7,4 +7,8 @@ Mesh triangle reduction using quadrics
 
 **Usage** The functionality is contained in Simplify.h. The function to call is *simplify_mesh(target_count)*. The code is kept pretty slim, so the main method has just around 400 lines of code. 
 
+**Obj File**
+
+The Obj file may only have one group or object. Its very simple so multiple objects in one file are not supported
+
 License : MIT
