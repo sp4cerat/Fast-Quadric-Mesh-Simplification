@@ -10,3 +10,5 @@ Mesh triangle reduction using quadrics
 **Obj File Limitations** The Obj file may only have one group or object. Its a very simple reader/writer, so dont try to use multiple objects in one file
 
 License : MIT
+
+Please dont forget to cite this page if you use my code!
