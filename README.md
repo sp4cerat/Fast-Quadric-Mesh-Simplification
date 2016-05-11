@@ -9,10 +9,6 @@ Mesh triangle reduction using quadrics
 
 **Obj File Limitations** The Obj file may only have one group or object. Its a very simple reader/writer, so dont try to use multiple objects in one file
 
-License : MIT
-
-Update May 11th 2016:
-
 **OSX and Linux Version + Command Line Tool added**
 
 [Chris Rorden](https://github.com/neurolabusc) created a command line version and provided binaries for OSX and Linux.
@@ -20,9 +16,8 @@ Update May 11th 2016:
 **Pascal Version**
 
 [Chris Rorden](https://github.com/neurolabusc) also created a pascal version of the tool:
-
 https://github.com/neurolabusc/Fast-Quadric-Mesh-Simplification-Pascal-
 
-
+License : MIT
 
 Please dont forget to cite this page if you use the code!
