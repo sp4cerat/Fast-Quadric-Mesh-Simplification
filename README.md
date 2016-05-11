@@ -16,6 +16,7 @@ Thanks to [Chris Rorden](https://github.com/neurolabusc) for creating a command 
 **Pascal Version**
 
 [Chris Rorden](https://github.com/neurolabusc) further created a pascal version that you can find here
+
 https://github.com/neurolabusc/Fast-Quadric-Mesh-Simplification-Pascal-
 
 License : MIT
