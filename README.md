@@ -11,7 +11,7 @@ Mesh triangle reduction using quadrics
 
 **OSX and Linux Version + Command Line Tool added**
 
-[Chris Rorden](https://github.com/neurolabusc) created a command line version and provided binaries for OSX and Linux.
+Thanks to [Chris Rorden](https://github.com/neurolabusc) for creating a command line version and providing binaries for OSX and Linux.
 
 **Pascal Version**
 
