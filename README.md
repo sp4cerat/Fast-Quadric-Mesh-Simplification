@@ -1,5 +1,5 @@
 # Fast-Quadric-Mesh-Simplification
-Mesh triangle reduction using quadrics
+Mesh triangle reduction using quadrics - for Windows, OSX and Linux (thx Chris Rorden)
 
 ![img](https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification/blob/master/screenshot.png?raw=true)
 
