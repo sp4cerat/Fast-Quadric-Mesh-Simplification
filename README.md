@@ -15,7 +15,7 @@ Mesh triangle reduction using quadrics
 
 **Pascal Version**
 
-[Chris Rorden](https://github.com/neurolabusc) also created a pascal version:
+[Chris Rorden](https://github.com/neurolabusc) further created a pascal version:
 https://github.com/neurolabusc/Fast-Quadric-Mesh-Simplification-Pascal-
 
 License : MIT
