@@ -11,4 +11,18 @@ Mesh triangle reduction using quadrics
 
 License : MIT
 
-Please dont forget to cite this page if you use my code!
+Update May 11th 2016:
+
+**OSX and Linux Version + Command Line Tool added**
+
+[Chris Rorden](https://github.com/neurolabusc) created a command line version and provided binaries for OSX and Linux.
+
+**Pascal Version**
+
+[Chris Rorden](https://github.com/neurolabusc) also created a pascal version of the tool:
+
+https://github.com/neurolabusc/Fast-Quadric-Mesh-Simplification-Pascal-
+
+
+
+Please dont forget to cite this page if you use the code!
