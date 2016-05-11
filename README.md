@@ -9,13 +9,13 @@ Mesh triangle reduction using quadrics - for Windows, OSX and Linux (thx Chris R
 
 **Obj File Limitations** The Obj file may only have one group or object. Its a very simple reader/writer, so dont try to use multiple objects in one file
 
-**OSX and Linux Version + Command Line Tool added**
+**Windows, OSX and Linux Command Line Tool added**
 
 Thanks to [Chris Rorden](https://github.com/neurolabusc) for creating a command line version and providing binaries for OSX and Linux.
 
 **Pascal Version**
 
-[Chris Rorden](https://github.com/neurolabusc) further created a pascal version:
+[Chris Rorden](https://github.com/neurolabusc) further created a pascal version that you can find here
 https://github.com/neurolabusc/Fast-Quadric-Mesh-Simplification-Pascal-
 
 License : MIT
