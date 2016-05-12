@@ -27,7 +27,7 @@ Please dont forget to cite this page if you use the code!
 
 **Surf-Ice**
 
-![img](https://www.nitrc.org/plugins/mwiki/images/1/17/Surfice%3ASimplify.jpg)
+![img](https://www.nitrc.org/plugins/mwiki/images/thumb/1/17/Surfice%3ASimplify.jpg/180px-Surfice%3ASimplify.jpg)
 
 https://www.nitrc.org/plugins/mwiki/index.php/surfice:MainPage#Advanced_Notes
 
