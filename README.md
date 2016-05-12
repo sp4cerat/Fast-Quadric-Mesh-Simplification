@@ -22,3 +22,10 @@ https://github.com/neurolabusc/Fast-Quadric-Mesh-Simplification-Pascal-
 License : MIT
 
 Please dont forget to cite this page if you use the code!
+
+*Projects Using this Method*
+
+**Surf-Ice**
+
+https://www.nitrc.org/plugins/mwiki/index.php/surfice:MainPage#Advanced_Notes
+
