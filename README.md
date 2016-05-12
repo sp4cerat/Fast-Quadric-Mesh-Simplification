@@ -25,7 +25,9 @@ Please dont forget to cite this page if you use the code!
 
 *Projects Using this Method*
 
-**Surf-Ice**
+## Surf-Ice
+
+![img](https://www.nitrc.org/plugins/mwiki/images/1/17/Surfice%3ASimplify.jpg)
 
 https://www.nitrc.org/plugins/mwiki/index.php/surfice:MainPage#Advanced_Notes
 
