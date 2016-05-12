@@ -27,7 +27,10 @@ Please dont forget to cite this page if you use the code!
 
 **Surf-Ice**
 
+Surf Ice is a tool for surface rendering the cortex with overlays to illustrate tractography, network connections, anatomical atlases and statistical maps. While there are many alternatives, Surf Ice is easy to use and uses advances shaders to generate stunning images. It supports many popular mesh formats [3ds, ac3d, BrainVoyager (srf), ctm, Collada (dae), dfs, dxf, FreeSurfer (Asc, Srf, Curv, gcs, Pial, W), GIfTI (gii), gts, lwo, ms3d, mz3, nv, obj, off, ply, stl, vtk], connectome formats (edge/node) and tractography formats [bfloat, pdb, tck, trk, vtk].
+https://www.nitrc.org/plugins/mwiki/index.php/surfice:MainPage#Advanced_Notes
+
 ![img](https://www.nitrc.org/plugins/mwiki/images/thumb/1/17/Surfice%3ASimplify.jpg/180px-Surfice%3ASimplify.jpg)
 
-https://www.nitrc.org/plugins/mwiki/index.php/surfice:MainPage#Advanced_Notes
+
 
