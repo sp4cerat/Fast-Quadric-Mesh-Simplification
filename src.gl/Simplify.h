@@ -92,7 +92,7 @@ namespace Simplify
 		printf("%s - start\n",__FUNCTION__);
 		int timeStart=timeGetTime();
 
-		loopi(0,triangles.size()) triangles[i].deleted=0;
+		loopi(0,triangles.size()) triangles[i].deleted=0;  //删除标记
 		
 		// main iteration loop 
 
@@ -113,7 +113,7 @@ namespace Simplify
 			}
 
 			// clear dirty flag
-			loopi(0,triangles.size()) triangles[i].dirty=0;
+			loopi(0,triangles.size()) triangles[i].dirty=0;  //是否需要重新计算能量值的标记
 			
 			//
 			// All triangles with edges below the threshold will be removed
@@ -128,8 +128,8 @@ namespace Simplify
 			{				
 				Triangle &t=triangles[i];
 				if(t.err[3]>threshold) continue;
-				if(t.deleted) continue;
-				if(t.dirty) continue;
+				if(t.deleted) continue;  //包含待塌边的三角形标记为删除状态
+				if(t.dirty) continue;    //仅仅包含待塌边的其中一个顶点的三角形标记为置脏(需要重新计算能量值)状态
 				
 				loopj(0,3)if(t.err[j]<threshold) 
 				{
@@ -257,6 +257,8 @@ namespace Simplify
 			loopi(0,triangles.size())
 			if(!triangles[i].deleted)
 			{
+				//todo:如果i==dst可以减少一次赋值操作
+				//不过这种情况很少,一旦有某个三角形删除的情况下
 				triangles[dst++]=triangles[i];
 			}
 			triangles.resize(dst);
