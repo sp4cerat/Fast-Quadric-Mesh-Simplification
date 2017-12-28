@@ -34,12 +34,14 @@ int main(int argc, char **argv)
 	// Simplify::vertices[].p : vertex position
 	// Simplify::triangles[].v[0..2] : vertex indices
 	
+	//顶点几何位置
 	loopi(0,obj.objects[0].points.size())
 	{
 		Simplify::Vertex v;
 		v.p=obj.objects[0].points[i];
 		Simplify::vertices.push_back(v);
 	}
+	//三角形索引数组
 	loopi(0,obj.objects[0].triangles.size())
 	{
 		Simplify::Triangle t;
