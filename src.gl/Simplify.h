@@ -270,22 +270,39 @@ namespace Simplify
 		// recomputing during the simplification is not required,
 		// but mostly improves the result for closed meshes
 		//
+		/*
+			通过平面以及缩边的二次误差来初始化二次型对称矩阵
+
+			只需要在第一次迭代塌边之前收集二次误差信息及一些拓扑连接信息,在化简过程中没必要
+			重新进行计算或者手机三角形边的二次误差信息;但是重新计算二次误差无疑会得到更加贴近
+			原始模型的化简效果;(这需要在化简效率和化简效果之间进行平衡,例如百万级别的三角网
+			化简则优先考虑效率,反之,十万级别的三角形网则优先考虑效果)
+		*/
 		if( iteration == 0 )
 		{
+			//顶点的平面清零
 			loopi(0,vertices.size()) 
 			vertices[i].q=SymetricMatrix(0.0);
 
+			//将每个三角形平面累加到相连的没给顶点上
 			loopi(0,triangles.size()) 
 			{
+				//获取三角形的顶点位置信息
 				Triangle &t=triangles[i]; 
 				vec3f n,p[3];
 				loopj(0,3) p[j]=vertices[t.v[j]].p;
-				n.cross(p[1]-p[0],p[2]-p[0]);
+				
+				//计算三角形所在平面的单位法向
+				n.cross(p[1] - p[0], p[2] - p[0]);
 				n.normalize();
-				t.n=n;
+				t.n=n; 
+
+				//在三角形的顶点上累加平面
 				loopj(0,3) vertices[t.v[j]].q = 
 					vertices[t.v[j]].q+SymetricMatrix(n.x,n.y,n.z,-n.dot(p[0]));
 			}
+
+			//计算三角形每条边在塌边时的最优点及其二次误差(塌边能量)
 			loopi(0,triangles.size())
 			{
 				// Calc Edge Error
