@@ -307,8 +307,8 @@ namespace Simplify
 			{
 				// Calc Edge Error
 				Triangle &t=triangles[i];vec3f p;
-				loopj(0,3) t.err[j]=calculate_error(t.v[j],t.v[(j+1)%3],p);
-				t.err[3]=min(t.err[0],min(t.err[1],t.err[2]));
+				loopj(0,3) t.err[j]=calculate_error(t.v[j],t.v[(j+1)%3],p);  //计算每条边的能量值
+				t.err[3]=min(t.err[0],min(t.err[1],t.err[2]));               //计算三角形的能量值
 			}	
 		}
 
@@ -318,21 +318,31 @@ namespace Simplify
 			vertices[i].tstart=0;
 			vertices[i].tcount=0;
 		}
+
+		//统计每个顶点所连接的三角形数量
 		loopi(0,triangles.size())
 		{
 			Triangle &t=triangles[i];
 			loopj(0,3) vertices[t.v[j]].tcount++;
 		}
+
+		//每个顶点的corner在数组中的起始索引号
 		int tstart=0;
 		loopi(0,vertices.size())
 		{
 			Vertex &v=vertices[i];
 			v.tstart=tstart;
 			tstart+=v.tcount;
-			v.tcount=0;
+			v.tcount=0; //顶点v的corner数量置零
 		}
 
 		// Write References
+		/*
+		收集顶点的corner属性(ref)，然后按照顶点索引顺序存储在vector中;
+		每个顶点的corner个数记录在顶点v.tcount中;
+		ref.tid记录corner所在三角形的索引号;
+		ref.tvertex记录corner的顶点在该三角形tid中序号[0...2];
+		*/
 		refs.resize(triangles.size()*3);
 		loopi(0,triangles.size())
 		{
