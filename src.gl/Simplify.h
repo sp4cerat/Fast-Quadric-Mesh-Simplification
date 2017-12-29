@@ -337,7 +337,7 @@ namespace Simplify
 		}
 
 		// Write References
-		/*
+		/*记录顶点vertex与关联的corner{tid,tvertexOrder}
 		收集顶点的corner属性(ref)，然后按照顶点索引顺序存储在vector中;
 		每个顶点的corner个数记录在顶点v.tcount中;
 		ref.tid记录corner所在三角形的索引号;
@@ -346,12 +346,14 @@ namespace Simplify
 		refs.resize(triangles.size()*3);
 		loopi(0,triangles.size())
 		{
+			//三角形
 			Triangle &t=triangles[i];	
 			loopj(0,3)
 			{
+				//corner
 				Vertex &v=vertices[t.v[j]];
-				refs[v.tstart+v.tcount].tid=i;
-				refs[v.tstart+v.tcount].tvertex=j;
+				refs[v.tstart+v.tcount].tid=i;     //三角形序号
+				refs[v.tstart+v.tcount].tvertex=j; //顶点序号[0..2]
 				v.tcount++;
 			}
 		}
