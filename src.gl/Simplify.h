@@ -359,6 +359,13 @@ namespace Simplify
 		}
 
 		// Identify boundary : vertices[].border=0,1 
+		//边界探测
+		/*
+		todo:
+		1)需要增加边如果只与一个三角形相连,则视为边界,需要增加垂直平面来阻止先于内部塌边的操作;
+		2)与某边相连的某两个三角之间的二面角小于5度是需要增加垂直平面来阻止先于其他塌边操作(需要
+		考虑此时两个三角形如果在这条边上是非流型情况时,角度的计算问题);
+		*/
 		if( iteration == 0 )
 		{
 			std::vector<int> vcount,vids;
@@ -368,30 +375,48 @@ namespace Simplify
 
 			loopi(0,vertices.size())
 			{
+				//顶点v
 				Vertex &v=vertices[i];
-				vcount.clear();
-				vids.clear();
+
+				/*收集顶点v相连的corner所在三角形(顶点v的one-ring三角形)的所有
+				顶点的索引编码及其出现的重数(出现的次数)*/
+				vcount.clear();  //对应点的重数(multiplicity)
+				vids.clear();    //顶点集合(vid set)
+
+				//顶点v相连的corner
 				loopj(0,v.tcount)
 				{
+					//corner对应的三角形序号
 					int k=refs[v.tstart+j].tid;
-					Triangle &t=triangles[k];	
+					Triangle &t=triangles[k];
+
+					//corner所在三角形的三个顶点
 					loopk(0,3)
 					{
+						//在vids数组中查找是否含有id元素,并通过ofs下标指示具体位置
 						int ofs=0,id=t.v[k];
 						while(ofs<vcount.size())
 						{
-							if(vids[ofs]==id)break;
+							if(vids[ofs]==id)break; 
 							ofs++;
 						}
+
+						//在vids中没找到id,则将id追加到vids中
 						if(ofs==vcount.size())
-						{ 
+						{    
 							vcount.push_back(1);
 							vids.push_back(id);
 						}
-						else
+						//在vids中的ofs位置找到了id,那么重数加1
+						else 
 							vcount[ofs]++;
 					}
 				}
+
+				/*只与一个三角形相连的顶点标记为border==1;
+				  后续判断某条边中只有含有一个这种border==1点的边就是需要放弃塌边操作的；
+				  如果两个点都是这种border==1的点,则视为某个孤立三角形(即与其他三角网只通过0或者1个顶点连通),
+				  这种孤立三角形也是放弃塌边操作*/
 				loopj(0,vcount.size()) if(vcount[j]==1)
 					vertices[vids[j]].border=1;					
 			}
