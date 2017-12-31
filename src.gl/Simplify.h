@@ -201,6 +201,7 @@ namespace Simplify
 		}
 
 		// clean up mesh
+		//删除废弃的三角形和顶点对象,但不确保corner信息完整
 		compact_mesh();
 
 		// ready
@@ -549,10 +550,12 @@ namespace Simplify
 			system("PAUSE");
 			exit(0);
 		}
+		//输出顶点坐标信息
 		loopi(0,vertices.size())
 		{
 			fprintf(file, "v %lf %lf %lf\n", vertices[i].p.x,vertices[i].p.y,vertices[i].p.z);
 		}	
+		//输出三角形网格索引信息
 		loopi(0,triangles.size()) if(!triangles[i].deleted)
 		{
 			fprintf(file, "f %d// %d// %d//\n", triangles[i].v[0]+1, triangles[i].v[1]+1, triangles[i].v[2]+1);
