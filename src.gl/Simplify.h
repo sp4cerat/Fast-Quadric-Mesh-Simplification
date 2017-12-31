@@ -3,9 +3,10 @@ class SymetricMatrix {
 	public:
 
 	// Constructor
-
+	
 	SymetricMatrix(double c=0) { loopi(0,10) m[i] = c;  }
 
+	//4*4对称矩阵的上三角
 	SymetricMatrix(	double m11, double m12, double m13, double m14, 
 			            double m22, double m23, double m24,
 			                        double m33, double m34,
@@ -17,7 +18,7 @@ class SymetricMatrix {
 	}
 
 	// Make plane
-
+	//列向量与行向量相称(a,b,c,d是平面方程的系数:ax+by+cz+d=0)
 	SymetricMatrix(double a,double b,double c,double d)
 	{
 		m[0] = a*a;  m[1] = a*b;  m[2] = a*c;  m[3] = a*d; 
@@ -29,7 +30,7 @@ class SymetricMatrix {
 	double operator[](int c) const { return m[c]; }
 
 	// Determinant
-
+	//3*3矩阵行列式(主对角线乘积之和减去副对角线乘积之和)
 	double det(	int a11, int a12, int a13,
 				int a21, int a22, int a23,
 				int a31, int a32, int a33)
@@ -39,6 +40,7 @@ class SymetricMatrix {
 		return det;
 	}
 
+	//矩阵相加
 	const SymetricMatrix operator+(const SymetricMatrix& n) const
 	{ 
 		return SymetricMatrix( m[0]+n[0],   m[1]+n[1],   m[2]+n[2],   m[3]+n[3], 
@@ -47,6 +49,7 @@ class SymetricMatrix {
 						                                              m[ 9]+n[9 ]);
 	}
 
+	//矩阵相加
 	SymetricMatrix& operator+=(const SymetricMatrix& n)
 	{
 		 m[0]+=n[0];   m[1]+=n[1];   m[2]+=n[2];   m[3]+=n[3]; 
