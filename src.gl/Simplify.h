@@ -253,6 +253,7 @@ namespace Simplify
 	}
 
 	// Update triangle connections and edge error after a edge is collapsed
+	// todo:更新顶点i0上的二次误差矩阵
 	void update_triangles(int i0,Vertex &v,const std::vector<int> &deleted,int &deleted_triangles)
 	{
 		vec3f p;
