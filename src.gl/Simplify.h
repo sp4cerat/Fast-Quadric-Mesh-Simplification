@@ -176,22 +176,26 @@ namespace Simplify
 					update_triangles(i0,v0,deleted0,deleted_triangles);
 					update_triangles(i0,v1,deleted1,deleted_triangles);
 					
-					//
+					//本次缩边产生的新的corner数量
 					int tcount=refs.size()-tstart;
 				
+					//v0的corner空间足够容纳新corner对象,则直接拷贝
 					if(tcount<=v0.tcount)
 					{
 						// save ram
 						if(tcount)memcpy(&refs[v0.tstart],&refs[tstart],tcount*sizeof(Ref));
 					}
+					//v0的corner空间不足,则重置v0的corner空间的v0.tstart,指向新的位置
 					else
 						// append
 						v0.tstart=tstart;
 
+					//重新制定v0的corner对象的数目
 					v0.tcount=tcount;
 					break;
 				}
 				// done?
+				//缩边终止判断
 				if(triangle_count-deleted_triangles<=target_count)break;
 			}
 		}
@@ -200,6 +204,7 @@ namespace Simplify
 		compact_mesh();
 
 		// ready
+		//迭代完成
 		int timeEnd=timeGetTime();
 		printf("%s - %d/%d %d%% removed in %d ms\n",__FUNCTION__,
 			triangle_count-deleted_triangles,
@@ -285,7 +290,6 @@ namespace Simplify
 	}
 
 	// compact triangles, compute edge error and build reference list
-
 	void update_mesh(int iteration)
 	{		
 		if(iteration>0) // compact triangles
@@ -461,7 +465,6 @@ namespace Simplify
 	}
 
 	// Finally compact mesh before exiting
-
 	void compact_mesh()
 	{
 		int dst=0;
