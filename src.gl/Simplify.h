@@ -476,16 +476,17 @@ namespace Simplify
 		if(!triangles[i].deleted)
 		{
 			Triangle &t=triangles[i];
-			triangles[dst++]=t;
+			triangles[dst++]=t;                   //三角形对象被替换
 			loopj(0,3)vertices[t.v[j]].tcount=1;
 		}
+		//三角形对象内存收缩
 		triangles.resize(dst);
 		dst=0;
 		loopi(0,vertices.size())
 		if(vertices[i].tcount)
 		{
 			vertices[i].tstart=dst;
-			vertices[dst].p=vertices[i].p;
+			vertices[dst].p=vertices[i].p;        //只替换顶点的几何位置,其他信息不动
 			dst++;
 		}
 		loopi(0,triangles.size())
@@ -493,6 +494,7 @@ namespace Simplify
 			Triangle &t=triangles[i];
 			loopj(0,3)t.v[j]=vertices[t.v[j]].tstart;
 		}
+		//顶点对象内存收缩
 		vertices.resize(dst);
 	}
 
