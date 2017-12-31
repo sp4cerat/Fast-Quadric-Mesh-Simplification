@@ -75,7 +75,7 @@ namespace Simplify
 	double vertex_error(SymetricMatrix q, double x, double y, double z);
 	double calculate_error(int id_v1, int id_v2, vec3f &p_result);
 	bool flipped(vec3f p,int i0,int i1,Vertex &v0,Vertex &v1,std::vector<int> &deleted);
-	void update_triangles(int i0,Vertex &v,std::vector<int> &deleted,int &deleted_triangles);
+	void update_triangles(int i0,Vertex &v,const std::vector<int> &deleted,int &deleted_triangles);
 	void update_mesh(int iteration);
 	void compact_mesh();
 	//
@@ -109,6 +109,12 @@ namespace Simplify
 			// update mesh once in a while
 			if(iteration%5==0) 
 			{
+				/*
+				1)删除delete的三角形(每次调用)
+				2)初始化边的能量值(初次调用)
+				3)重新计算拓扑连接关系(每次调用)
+				4)收集边界点信息(初次调用)
+				*/
 				update_mesh(iteration);
 			}
 
@@ -127,7 +133,7 @@ namespace Simplify
 			loopi(0,triangles.size())
 			{				
 				Triangle &t=triangles[i];
-				if(t.err[3]>threshold) continue;
+				if(t.err[3]>threshold) continue;  //三条边中能量值最小的已经大于阈值
 				if(t.deleted) continue;  //包含待塌边的三角形标记为删除状态
 				if(t.dirty) continue;    //仅仅包含待塌边的其中一个顶点的三角形标记为置脏(需要重新计算能量值)状态
 				
@@ -137,22 +143,29 @@ namespace Simplify
 					int i1=t.v[(j+1)%3]; Vertex &v1 = vertices[i1];
 
 					// Border check
-					if(v0.border != v1.border)  continue;
+					if(v0.border != v1.border)  continue;  //边的两个端点中有一个点只与一个三角形连接
 
 					// Compute vertex to collapse to
 					vec3f p;
-					calculate_error(i0,i1,p);
+					calculate_error(i0,i1,p);  //计算最优塌边点
 
-					deleted0.resize(v0.tcount); // normals temporarily
-					deleted1.resize(v1.tcount); // normals temporarily
+					deleted0.resize(v0.tcount); // normals temporarily v0连接的所有三角形
+					deleted1.resize(v1.tcount); // normals temporarily v1连接的所有三角形
 
-					// dont remove if flipped
+					/*
+					1)检测将要变化(delta)的三角形用点p代替其中的一个端点是否会发生反转(法向偏转超过78.5度);
+					2)收集在缩边过程中与要缩的边连接的三角形(dead),在deleted0,deleted1对应的位置做标记1;
+					*/
 					if( flipped(p,i0,i1,v0,v1,deleted0) ) continue;
 					if( flipped(p,i1,i0,v1,v0,deleted1) ) continue;
 
-					// not flipped, so remove edge												
-					v0.p=p;
-					v0.q=v1.q+v0.q;
+					// not flipped, so remove edge
+					/*
+					1)删除dead三角形(与边{i0,i1}连接的所有三角形);
+					2)消失一个顶点vertex(v1);
+					*/
+					v0.p=p;  //保留v0,用最优化点(二次误差最小点)更新v0的几何位置;
+					v0.q=v1.q+v0.q; //将v1的二次误差矩阵(平面方程)累加到v0上;
 					int tstart=refs.size();
 
 					update_triangles(i0,v0,deleted0,deleted_triangles);
@@ -190,40 +203,45 @@ namespace Simplify
 	}
 
 	// Check if a triangle flips when this edge is removed
-
 	bool flipped(vec3f p,int i0,int i1,Vertex &v0,Vertex &v1,std::vector<int> &deleted)
 	{
 		int bordercount=0;
+
+		//检测点p是否与v0连接的三角形中除v0外的其他两个点构成翻面
 		loopk(0,v0.tcount)
 		{
 			Triangle &t=triangles[refs[v0.tstart+k].tid]; 
-			if(t.deleted)continue;
+			if(t.deleted)continue; //已经标记为删除
 
 			int s=refs[v0.tstart+k].tvertex;
 			int id1=t.v[(s+1)%3];
 			int id2=t.v[(s+2)%3];
 
+			//三角形t与边{i0,i1}相连,则t将在边{i0,i1}缩边操作中被删除
 			if(id1==i1 || id2==i1) // delete ?
 			{
 				bordercount++;
 				deleted[k]=1;
 				continue;
 			}
+
+
 			vec3f d1 = vertices[id1].p-p; d1.normalize();
 			vec3f d2 = vertices[id2].p-p; d2.normalize(); 
-			if(fabs(d1.dot(d2))>0.999) return true;
+			if(fabs(d1.dot(d2))>0.999/*小于2.85度夹角*/) return true; //如果三角形{id1,p,id2}成退化三角形(夹角太小)
+			
+			//新法向与t.n比较
 			vec3f n;
 			n.cross(d1,d2);
 			n.normalize();
 			deleted[k]=0;							
-			if(n.dot(t.n)<0.2) return true;
+			if(n.dot(t.n)<0.2/*法向偏转大于78.5度*/) return true;
 		}
 		return false;
 	}
 
 	// Update triangle connections and edge error after a edge is collapsed
-
-	void update_triangles(int i0,Vertex &v,std::vector<int> &deleted,int &deleted_triangles)
+	void update_triangles(int i0,Vertex &v,const std::vector<int> &deleted,int &deleted_triangles)
 	{
 		vec3f p;
 		loopk(0,v.tcount)
