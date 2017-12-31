@@ -497,7 +497,6 @@ namespace Simplify
 	}
 
 	// Error between vertex and Quadric
-
 	double vertex_error(SymetricMatrix q, double x, double y, double z)
 	{
  		return   q[0]*x*x + 2*q[1]*x*y + 2*q[2]*x*z + 2*q[3]*x + q[4]*y*y
@@ -505,11 +504,9 @@ namespace Simplify
 	}
 
 	// Error for one edge
-
 	double calculate_error(int id_v1, int id_v2, vec3f &p_result)
 	{
 		// compute interpolated vertex 
-
 		SymetricMatrix q = vertices[id_v1].q + vertices[id_v2].q;
 		bool   border = vertices[id_v1].border & vertices[id_v2].border;
 		double error=0;
@@ -541,7 +538,6 @@ namespace Simplify
 	}
 
 	// Optional : Store as OBJ
-
 	void write_obj(char* filename)
 	{
 		FILE *file=fopen(filename, "w");
