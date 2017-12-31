@@ -168,9 +168,15 @@ namespace Simplify
 					v0.q=v1.q+v0.q; //将v1的二次误差矩阵(平面方程)累加到v0上;
 					int tstart=refs.size();
 
+					/*
+					1)将delta三角形的v0或者v1顶点在各自三角形中的角色替换成i0;
+					2)重新计算delta三角形各边的二次误差及其最优点;
+					3)将保留的corner对象追加到refs.back();
+					*/
 					update_triangles(i0,v0,deleted0,deleted_triangles);
 					update_triangles(i0,v1,deleted1,deleted_triangles);
-						
+					
+					//
 					int tcount=refs.size()-tstart;
 				
 					if(tcount<=v0.tcount)
@@ -246,21 +252,34 @@ namespace Simplify
 		vec3f p;
 		loopk(0,v.tcount)
 		{
+			//通过与v相连的one-ring corner得到one-ring三角形
 			Ref &r=refs[v.tstart+k];
 			Triangle &t=triangles[r.tid]; 
+
+			//已经删除的三角形不处理
 			if(t.deleted)continue;
+
+			//将要消失的三角形不用处理
 			if(deleted[k]) 
 			{
-				t.deleted=1;
+				t.deleted=1; //标记删除
 				deleted_triangles++;
 				continue;
 			}
+
+			//将端点v所在的顶点索引替换成i0
 			t.v[r.tvertex]=i0;
+
+			//三角形t标记为dirty
 			t.dirty=1;
+
+			//重新计算三角形t各边的二次误差及其最优点
 			t.err[0]=calculate_error(t.v[0],t.v[1],p);
 			t.err[1]=calculate_error(t.v[1],t.v[2],p);
 			t.err[2]=calculate_error(t.v[2],t.v[0],p);
 			t.err[3]=min(t.err[0],min(t.err[1],t.err[2]));
+
+			//将变化的(保留的)corner追加到refs
 			refs.push_back(r);
 		}
 	}
