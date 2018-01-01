@@ -504,6 +504,7 @@ namespace Simplify
 	}
 
 	// Error between vertex and Quadric
+	// 计算点{x,y,z}到平面{a,b,c,d}的平方距离
 	double vertex_error(SymetricMatrix q, double x, double y, double z)
 	{
  		return   q[0]*x*x + 2*q[1]*x*y + 2*q[2]*x*z + 2*q[3]*x + q[4]*y*y
@@ -511,12 +512,19 @@ namespace Simplify
 	}
 
 	// Error for one edge
+	// 计算在线段{id_v1,id_v2}间某一点p_result
+	// 到连接在点{id_v1}和点{id_v2}上所有平面的最短距离平方和最小
 	double calculate_error(int id_v1, int id_v2, vec3f &p_result)
 	{
 		// compute interpolated vertex 
+		// 收集点v1,v2的所有二次误差矩阵
 		SymetricMatrix q = vertices[id_v1].q + vertices[id_v2].q;
+
+		// v1,v2中只要有一个是边界点(改点只与一个三角形连接)则边{v1,v2}为border
 		bool   border = vertices[id_v1].border & vertices[id_v2].border;
 		double error=0;
+
+		//计算4*4矩阵q的3*3子矩阵的行列式
 		double det = q.det(0, 1, 2, 1, 4, 5, 2, 5, 7);
 
 		if ( det != 0 && !border )
@@ -530,13 +538,21 @@ namespace Simplify
 		else
 		{
 			// det = 0 -> try to find best result
+			// 如果q行或者列线性相关(任何一子矩阵行列式线性相关或者行列式为零),
+			// 取两个端点和中点中距离平方和最小者为最优点
 			vec3f p1=vertices[id_v1].p;
 			vec3f p2=vertices[id_v2].p;
 			vec3f p3=(p1+p2)/2;
+
+			// 分别计算距离平方和
 			double error1 = vertex_error(q, p1.x,p1.y,p1.z);
 			double error2 = vertex_error(q, p2.x,p2.y,p2.z);
 			double error3 = vertex_error(q, p3.x,p3.y,p3.z);
+
+			// 取距离平方和最小值
 			error = min(error1, min(error2, error3));
+
+			// 返回距离平方和最小的点{v1,v2,中点}
 			if (error1 == error) p_result=p1;
 			if (error2 == error) p_result=p2;
 			if (error3 == error) p_result=p3;
