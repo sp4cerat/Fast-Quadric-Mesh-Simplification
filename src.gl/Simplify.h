@@ -538,7 +538,7 @@ namespace Simplify
 		else
 		{
 			// det = 0 -> try to find best result
-			// 如果q行或者列线性相关(任何一子矩阵行列式线性相关或者行列式为零),
+			// 如果q行或者列线性相关(任何一子矩阵行列式线性相关或者行列式为零)或者border==true,
 			// 取两个端点和中点中距离平方和最小者为最优点
 			vec3f p1=vertices[id_v1].p;
 			vec3f p2=vertices[id_v2].p;
