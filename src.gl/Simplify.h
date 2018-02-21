@@ -529,7 +529,7 @@ namespace Simplify
 
 		if ( det != 0 && !border )
 		{
-			// q_delta is invertible
+			// q_delta is invertible(克莱姆法则求解非齐次线性方程组,详见Simplify.GL-SymetricMatrix.png之推导)
 			p_result.x = -1/det*(q.det(1, 2, 3, 4, 5, 6, 5, 7 , 8));	// vx = A41/det(q_delta) 
 			p_result.y =  1/det*(q.det(0, 2, 3, 1, 5, 6, 2, 7 , 8));	// vy = A42/det(q_delta) 
 			p_result.z = -1/det*(q.det(0, 1, 3, 1, 4, 6, 2, 5,  8));	// vz = A43/det(q_delta) 
