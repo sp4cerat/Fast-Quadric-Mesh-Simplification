@@ -17,6 +17,11 @@
 //#include <sys/stat.h>
 //#include <stdbool.h>
 #include <string.h>
+#include <string>
+#include <fstream>
+#include <algorithm>
+#include <iostream>
+#include <cstring> // memcpy
 //#include <ctype.h>
 //#include <float.h>
 #include <stdio.h>
@@ -29,6 +34,59 @@
 #define loopi(start_l,end_l) for ( int i=start_l;i<end_l;++i )
 #define loopj(start_l,end_l) for ( int j=start_l;j<end_l;++j )
 #define loopk(start_l,end_l) for ( int k=start_l;k<end_l;++k )
+
+/*
+ *  Represents an optionally-indexed vertex in space
+ */
+struct VertexSTL
+{
+    VertexSTL() {}
+    VertexSTL(float x, float y, float z) : x(x), y(y), z(z) {}
+
+    float x, y, z;
+    unsigned int i=0;
+
+    bool operator!=(const VertexSTL& rhs) const
+    {
+        return x != rhs.x || y != rhs.y || z != rhs.z;
+    }
+    bool operator<(const VertexSTL& rhs) const
+    {
+        if      (x != rhs.x)    return x < rhs.x;
+        else if (y != rhs.y)    return y < rhs.y;
+        else if (z != rhs.z)    return z < rhs.z;
+        else                    return false;
+    }
+};
+inline std::string trim(std::string& str)
+{
+    str.erase(0, str.find_first_not_of(' '));       //prefixing spaces
+    str.erase(str.find_last_not_of(' ')+1);         //surfixing spaces
+    return str;
+}
+
+inline VertexSTL get_vector(std::string& str)
+{
+    // "vertex float float float"
+    auto space0 = str.find_first_of(' ');
+    str.erase(0, space0); // remove "vertex"
+    str.erase(0, str.find_first_not_of(' ')); //prefixing spaces
+    auto space1 = str.find_first_of(' ');
+
+    float x = std::stof(str.substr(0, space1));
+
+    str.erase(0, space1+1); // remove x
+    str.erase(0, str.find_first_not_of(' ')); //prefixing spaces
+
+    auto space2 = str.find_last_of(' ');
+
+    VertexSTL v(x,
+        std::stof(str.substr(0, space2)),
+        std::stof(str.substr(space2, str.size()))
+    );
+    return v;
+}
+
 
 struct vector3
 {
@@ -846,5 +904,129 @@ namespace Simplify
 		}
 		fclose(file);
 	}
+
+    std::vector<VertexSTL> load_binary(const char* filename) {
+        printf("loading binary\n");
+        std::fstream fbin;
+        fbin.open(filename, std::ios::in | std::ios::binary);
+        fbin.seekg(80);
+
+        std::uint32_t num_faces;
+        fbin.read(reinterpret_cast<char *>(&num_faces), 4);
+
+        const unsigned int num_indices = num_faces*3;
+
+        size_t len = num_faces*50;
+        char *ret = new char[len];
+        fbin.read(ret, len);
+        std::vector<VertexSTL> all_vertices(num_indices);
+
+        for (int i=0;i<num_faces;i+=1) {
+            for (int j=0;j<3;j++) {
+                const int index = i*3+j;
+                std::memcpy(&all_vertices[index], &ret[12 + i*50 + j*12], 12);
+            }
+        }
+
+        fbin.close();
+
+        return all_vertices;
+    }
+
+    std::vector<VertexSTL> load_ascii(const char* filename) {
+        printf("loading ascii\n");
+
+        std::vector<VertexSTL> all_vertices;
+
+        std::ifstream file;
+        file.open(filename);
+
+        std::string line;
+        while (!file.eof()) {
+            std::getline(file, line);
+            line = trim(line);
+            if (line.rfind("VertexSTL", 0) == 0) {
+                all_vertices.push_back(get_vector(line));
+            }
+        }
+        file.close();
+
+        return all_vertices;
+    }
+
+    // thanks to https://github.com/mkeeter/fstl/blob/master/src/loader.cpp
+    std::vector<VertexSTL> load_stl_vertices(const char* filename) {
+        std::ifstream file(filename);
+        std::string line;
+        std::getline(file, line);
+        if (line.rfind("solid ", 0) == 0) {
+            std::getline(file, line);
+            line = trim(line);
+            if (line.rfind("facet", 0) == 0)
+            {
+                file.close();
+                return load_ascii(filename);
+            }
+        }
+        file.close();
+        return load_binary(filename);
+    }
+
+
+    void load_stl(const char* filename) {
+        vertices.clear();
+        triangles.clear();
+
+        auto all_vertices = load_stl_vertices(filename);
+        const uint32_t num_indices = all_vertices.size();
+        for (int c=0;c<all_vertices.size();c++)
+            all_vertices[c].i = c;
+
+        std::uint32_t *indices;
+        indices = (std::uint32_t *) malloc(num_indices * sizeof(std::uint32_t));
+
+        std::sort(all_vertices.begin(), all_vertices.end());
+
+        float minx =  999999;
+        float miny =  999999;
+        float minz =  999999;
+        float maxx = -999999;
+        float maxy = -999999;
+        float maxz = -999999;
+
+        unsigned int num_vertices = 0;
+        for (auto& v : all_vertices)
+        {
+            if (!num_vertices || v != all_vertices[num_vertices-1])
+            {
+                all_vertices[num_vertices++] = v;
+                if (v.x < minx) minx = v.x;
+                if (v.x > maxx) maxx = v.x;
+                if (v.y < miny) miny = v.y;
+                if (v.y > maxy) maxy = v.y;
+                if (v.z < minz) minz = v.z;
+                if (v.z > maxz) maxz = v.z;
+            }
+            indices[v.i] = num_vertices - 1;
+        }
+        all_vertices.resize(num_vertices);
+
+        for (auto& _v : all_vertices) {
+            Vertex v;
+            v.p.x = _v.x; v.p.y = _v.y; v.p.z = _v.z;
+            vertices.push_back(v);
+        }
+
+        for (int i=0;i+=3;i<num_indices/3) {
+            Triangle t;
+            t.v[0] = indices[i];
+            t.v[1] = indices[i+1];
+            t.v[2] = indices[i+2];
+            triangles.push_back(t);
+        }
+
+        printf(" num of vertices %d num of triangles %d",
+                vertices.size(), triangles.size());
+    }
 };
 ///////////////////////////////////////////

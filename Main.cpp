@@ -40,7 +40,8 @@ int main(int argc, const char * argv[]) {
         showHelp(argv);
         return EXIT_SUCCESS;
     }
-	Simplify::load_obj(argv[1]);
+	// Simplify::load_obj(argv[1]);
+    Simplify::load_stl(argv[1]);
 	if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3))
 		return EXIT_FAILURE;
 	int target_count =  Simplify::triangles.size() >> 1;
