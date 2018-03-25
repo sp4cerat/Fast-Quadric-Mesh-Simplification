@@ -1049,8 +1049,7 @@ namespace Simplify
         }
         unsigned char buffer[80] = {'T', 'I', 'G', 'E', 'R'}; // write 80 empty
         fwrite(buffer,sizeof(buffer),1,file);
-        unsigned char normal[12]; // write 80 empty
-        unsigned char spacer[2] = {' ', ' '}; // write 80 empty
+        unsigned char spacer[2] = {'\0', '\0'}; // null char
 
         // loopi(0,vertices.size())
         // {
