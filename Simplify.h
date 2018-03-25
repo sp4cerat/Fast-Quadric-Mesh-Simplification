@@ -1025,8 +1025,61 @@ namespace Simplify
             triangles.push_back(t);
         }
 
-        printf("STL num of vertices %ld num of triangles %ld\n",
+        printf("STL num of vertices %zu num of triangles %zu\n",
                 vertices.size(), triangles.size());
     }
+
+    inline void write_float(float f, FILE* file) {
+        fwrite(&f,sizeof(f),1,file);
+    }
+
+    inline void write_vertex_stl(vec3f v, FILE* file) {
+        write_float(v.x, file);
+        write_float(v.y, file);
+        write_float(v.z, file);
+    }
+
+    void write_stl(const char* filename)
+    {
+        FILE *file=fopen(filename, "wb");
+        if (!file)
+        {
+            printf("write_obj: can't write data file \"%s\".\n", filename);
+            exit(0);
+        }
+        unsigned char buffer[80] = {'T', 'I', 'G', 'E', 'R'}; // write 80 empty
+        fwrite(buffer,sizeof(buffer),1,file);
+        unsigned char normal[12]; // write 80 empty
+        unsigned char spacer[2] = {' ', ' '}; // write 80 empty
+
+        // loopi(0,vertices.size())
+        // {
+            // fprintf(file, "v %g %g %g\n", vertices[i].p.x,vertices[i].p.y,vertices[i].p.z); //more compact: remove trailing zeros
+        // }
+        unsigned int number_triangles = 0;
+        loopi(0,triangles.size()) if(!triangles[i].deleted)
+            number_triangles += 1;
+        fwrite(&number_triangles,sizeof(number_triangles),1,file);
+
+        loopi(0,triangles.size()) if(!triangles[i].deleted)
+        {
+            auto v0 = vertices[triangles[i].v[0]].p;
+            auto v1 = vertices[triangles[i].v[1]].p;
+            auto v2 = vertices[triangles[i].v[2]].p;
+
+            vec3f n;
+            n.cross(v1-v0,v2-v0);
+            n.normalize();
+
+            write_vertex_stl(n, file);
+            write_vertex_stl(v0, file);
+            write_vertex_stl(v1, file);
+            write_vertex_stl(v2, file);
+
+            fwrite(spacer,sizeof(spacer),1,file);
+        }
+        // fclose(file);
+    }
+
 };
 ///////////////////////////////////////////

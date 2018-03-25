@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115758488-1"></script> -->
+
+<!-- <script> -->
+    <!-- window.dataLayer = window.dataLayer || []; -->
+    <!-- function gtag(){dataLayer.push(arguments);} -->
+    <!-- gtag('js', new Date()); -->
+    <!-- gtag('config', 'UA-115758488-1'); -->
+<!-- </script> -->
+
+<script async type="text/javascript" src="./a.out.js"></script>
+
+<style>
+
+#dragAndDrop {
+    min-height: 200px;
+    white-space: pre;
+    border: 1px dashed black;
+    border-radius: 10px;
+}
+
+#info {
+    width:100%
+    display: -webkit-flex;
+    display: flex;
+}
+</style>
+
+<script type="text/javascript">
+    `use strict`;
+
+    let GLOBAL = {
+        'filename': undefined
+    }
+
+    var Module = {
+        'print': function(text) {
+            var logger = document.getElementById('log');
+            console.log(text);
+            logger.innerHTML += text + '<br />';
+        },
+    };
+
+    function uploaded(file) {
+        if (file === undefined) { // via upload button
+            var uploadform = document.getElementById("fileuploadform");
+            file = uploadform.files[0];
+
+            // this helps to force trigger even if user upload the same file
+            // https://stackoverflow.com/a/12102992/5260518
+            this.value = null;
+        }
+
+        check_file(file, function(){check_file_success()});
+
+        function check_file_success() {
+
+            put_status("Simplifying by your browser");
+
+            var uploadform = document.getElementById("fileuploadform");
+            var filename = file.name;
+            var fr = new FileReader();
+            fr.readAsDataURL(file);
+
+            fr.onload = function (){
+
+                const simplify_filename = 'simplify.stl';
+                // if (filename === GLOBAL.stl_name) { // user upload the same file as last one
+                    // console.log("same stl file");
+                    // download_glb();
+                    // return;
+                // } else if (GLOBAL.stl_name !== undefined) { // not same file rm old file
+                    // console.log("new filename ", filename, "unlink", GLOBAL.stl_name);
+                    // Module['FS_unlink'](GLOBAL.stl_name);
+                // }
+
+                if (GLOBAL.filename !== undefined) { // not same file rm old file
+                    console.log("new filename ", filename, "unlink", GLOBAL.filename);
+                    Module['FS_unlink'](GLOBAL.filename);
+                    Module['FS_unlink'](simplify_filename);
+                }
+
+                GLOBAL.filename = filename
+
+                var data = atob(fr.result.split(",")[1]); // base64 to Uint8 for emscripten
+                Module['FS_createDataFile'](".", filename, data, true, true);
+
+                Module.ccall("simplify", // c function name
+                        undefined, // return
+                        ["string", "number"], // param
+                        [filename, 0.5]
+                );
+
+
+                // Using a file to output data from c++ to js
+                // because if I use a pointer to array, if memory grow in wasm,
+                // this array will be in a different place
+                // then the pointer will be pointing to a wrong memory address
+                let out_bin = Module['FS_readFile'](simplify_filename);
+
+                let blob = new Blob([out_bin], {type: 'application/sla'});
+                let url = window.URL.createObjectURL(blob);
+                var download_a = document.getElementById('download');
+                download_a.href = url;
+                download_a.download = simplify_filename;
+
+                var download_button = document.getElementById('download_button');
+                download_button.disabled = false;
+                download_button.innerHTML = "Click to Download " + simplify_filename;
+                download_button.click();
+            }
+        }
+    }
+
+    function check_file(file, success_cb) {
+        put_status("Checking file");
+        const filename = file.name;
+        const extension = filename.toLowerCase().slice(filename.lastIndexOf(".")+1, filename.length);
+        if (extension!=="stl") {
+            put_status("Please upload an stl file not "+ extension);
+            return;
+        }
+        success_cb();
+    }
+
+    function dodrop(event) {
+        var dt = event.dataTransfer;
+        var file = dt.files[0];
+        var filename = file.name;
+        put_status("Simplifying " + filename + " using WebAssembly.");
+        uploaded(file);
+    }
+
+    function put_status(text)
+    {
+        document.getElementById("status").textContent = text;
+    }
+</script>
+
+<body>
+    <h1>Mesh Simplification</h1>
+    <div id="dragAndDrop"
+         ondragenter="event.stopPropagation(); event.preventDefault();"
+         ondragover="event.stopPropagation(); event.preventDefault();"
+         ondrop="event.stopPropagation(); event.preventDefault();
+         dodrop(event);">
+        <span>Drag and drop STL files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></span>
+        <span>Status: <span id="status">Waiting for upload</span>
+    </div>
+    <a id="download"><button id="download_button" disabled>Click to Download</button></a>
+    <div id="info">
+        <div>
+            <h3>Note</h3>
+            <ul>
+                <li>WebAssembly Version of <a href="https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification">Fast Quadric Mesh Simplification by spe4cerat</a></li>
+            </ul>
+        </div>
+        <!-- <div> -->
+            <!-- <h3>Upcoming features</h3> -->
+        <!-- </div> -->
+    </div>
+
+    <div id="log"></div>
+
+    <a href="https://github.com/MyMiniFactory/Fast-Quadric-Mesh-Simplification"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+</body>
+
+</html>
