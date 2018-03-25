@@ -1017,7 +1017,7 @@ namespace Simplify
             vertices.push_back(v);
         }
 
-        for (int i=0;i+=3;i<num_indices/3) {
+        for (int i=0;i<num_indices;i+=3) {
             Triangle t;
             t.v[0] = indices[i];
             t.v[1] = indices[i+1];
@@ -1025,7 +1025,7 @@ namespace Simplify
             triangles.push_back(t);
         }
 
-        printf(" num of vertices %d num of triangles %d",
+        printf("STL num of vertices %ld num of triangles %ld\n",
                 vertices.size(), triangles.size());
     }
 };
