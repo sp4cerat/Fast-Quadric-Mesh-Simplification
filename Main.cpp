@@ -35,11 +35,14 @@ void showHelp(const char * argv[]) {
 } //showHelp()
 
 extern "C" {
-int simplify(std::string filepath, float reduceFraction) {
+int simplify(uint8_t* buf, float reduceFraction) {
 
-    Simplify::load_stl(filepath.c_str());
-    if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3))
+    Simplify::load_stl(buf);
+    // Simplify::load_stl(filepath.c_str());
+    if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3)) {
+        printf("triangle size or vertices size too small \n");
         return EXIT_FAILURE;
+    }
     int target_count =  Simplify::triangles.size() >> 1;
     if (reduceFraction > 1.0) reduceFraction = 1.0; //lossless only
 
@@ -48,6 +51,7 @@ int simplify(std::string filepath, float reduceFraction) {
         return EXIT_FAILURE;
     }
     target_count = round((float)Simplify::triangles.size() * reduceFraction);
+    printf("target_count %d\n", target_count);
 
     if (target_count < 4) {
         printf("Object will not survive such extreme decimation\n");
@@ -58,7 +62,6 @@ int simplify(std::string filepath, float reduceFraction) {
     printf("Input: %zu vertices, %zu triangles (target %d)\n", Simplify::vertices.size(), Simplify::triangles.size(), target_count);
     int startSize = Simplify::triangles.size();
     Simplify::simplify_mesh(target_count, agressiveness, true);
-    //Simplify::simplify_mesh_lossless( false);
     if ( Simplify::triangles.size() >= startSize) {
         printf("Unable to reduce mesh.\n");
         return EXIT_FAILURE;

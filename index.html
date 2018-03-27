@@ -34,6 +34,20 @@
 <script type="text/javascript">
     `use strict`;
 
+    var worker = new Worker('worker.js');
+
+    worker.onmessage = function(e) {
+        var logger = document.getElementById('log');
+        logger.innerHTML += e.data + '<br />';
+    }
+
+    worker.onerror = function(e) {
+        console.log(e);
+        console.log(
+            'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message
+        );
+    }
+
     let GLOBAL = {
         'filename': undefined
     }
@@ -56,64 +70,11 @@
             this.value = null;
         }
 
-        check_file(file, function(){check_file_success()});
+        check_file(file, function(){check_file_success(file)});
 
-        function check_file_success() {
-
-            put_status("Simplifying by your browser");
-
-            var uploadform = document.getElementById("fileuploadform");
-            var filename = file.name;
-            var fr = new FileReader();
-            fr.readAsDataURL(file);
-
-            fr.onload = function (){
-
-                const simplify_filename = 'simplify.stl';
-                // if (filename === GLOBAL.stl_name) { // user upload the same file as last one
-                    // console.log("same stl file");
-                    // download_glb();
-                    // return;
-                // } else if (GLOBAL.stl_name !== undefined) { // not same file rm old file
-                    // console.log("new filename ", filename, "unlink", GLOBAL.stl_name);
-                    // Module['FS_unlink'](GLOBAL.stl_name);
-                // }
-
-                if (GLOBAL.filename !== undefined) { // not same file rm old file
-                    console.log("new filename ", filename, "unlink", GLOBAL.filename);
-                    Module['FS_unlink'](GLOBAL.filename);
-                    Module['FS_unlink'](simplify_filename);
-                }
-
-                GLOBAL.filename = filename
-
-                var data = atob(fr.result.split(",")[1]); // base64 to Uint8 for emscripten
-                Module['FS_createDataFile'](".", filename, data, true, true);
-
-                Module.ccall("simplify", // c function name
-                        undefined, // return
-                        ["string", "number"], // param
-                        [filename, 0.5]
-                );
-
-
-                // Using a file to output data from c++ to js
-                // because if I use a pointer to array, if memory grow in wasm,
-                // this array will be in a different place
-                // then the pointer will be pointing to a wrong memory address
-                let out_bin = Module['FS_readFile'](simplify_filename);
-
-                let blob = new Blob([out_bin], {type: 'application/sla'});
-                let url = window.URL.createObjectURL(blob);
-                var download_a = document.getElementById('download');
-                download_a.href = url;
-                download_a.download = simplify_filename;
-
-                var download_button = document.getElementById('download_button');
-                download_button.disabled = false;
-                download_button.innerHTML = "Click to Download " + simplify_filename;
-                download_button.click();
-            }
+        function check_file_success(file) {
+            console.log("file", file);
+            worker.postMessage(file);
         }
     }
 
@@ -158,6 +119,7 @@
             <h3>Note</h3>
             <ul>
                 <li>WebAssembly Version of <a href="https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification">Fast Quadric Mesh Simplification by spe4cerat</a></li>
+                <li>Make Sure HTML is rendering  <img src="http://i.imgur.com/fyMbwZF.gif" alt="tiger" width="215" height="120"></li>
             </ul>
         </div>
         <!-- <div> -->

@@ -905,6 +905,24 @@ namespace Simplify
 		fclose(file);
 	}
 
+    std::vector<VertexSTL> load_binary(uint8_t* buf) {
+        std::uint32_t num_faces;
+        std::memcpy(&num_faces, &buf[80], 4);
+        printf("num faces %d\n", num_faces);
+
+        const unsigned int num_indices = num_faces*3;
+        std::vector<VertexSTL> all_vertices(num_indices);
+
+        for (int i=0;i<num_faces;i+=1) {
+            for (int j=0;j<3;j++) {
+                const int index = i*3+j;
+                const int position = 84 + 12 + i*50 + j*12;
+                std::memcpy(&all_vertices[index], &buf[position], 12);
+            }
+        }
+        return all_vertices;
+    }
+
     std::vector<VertexSTL> load_binary(const char* filename) {
         printf("loading binary\n");
         std::fstream fbin;
@@ -973,11 +991,11 @@ namespace Simplify
     }
 
 
-    void load_stl(const char* filename) {
+    void load_stl(uint8_t* buf) {
         vertices.clear();
         triangles.clear();
 
-        auto all_vertices = load_stl_vertices(filename);
+        auto all_vertices = load_binary(buf);
         const uint32_t num_indices = all_vertices.size();
         for (int c=0;c<all_vertices.size();c++)
             all_vertices[c].i = c;
