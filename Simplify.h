@@ -937,7 +937,7 @@ namespace Simplify
     // }
 
     std::vector<VertexSTL> load_binary(const char* filename) {
-        printf("loading binary\n");
+        printf("loading binary stl\n");
         std::fstream fbin;
         fbin.open(filename, std::ios::in | std::ios::binary);
         fbin.seekg(80);

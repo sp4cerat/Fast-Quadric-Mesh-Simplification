@@ -29,6 +29,16 @@
     display: -webkit-flex;
     display: flex;
 }
+
+#simplify_box {
+    height: 400px;
+    overflow: auto;
+    border: 1px solid black;
+}
+
+#note_box {
+    margin-right: 30px;
+}
 </style>
 
 <script type="text/javascript">
@@ -37,8 +47,10 @@
     var worker = new Worker('worker.js');
 
     worker.onmessage = function(e) {
-        var logger = document.getElementById('log');
-        logger.innerHTML += e.data + '<br />';
+        var logger = document.getElementById('simplify_log');
+        logger.innerHTML += '<li>' + e.data + '</li>';
+        var box = document.getElementById('simplify_box');
+        box.scrollTop = box.scrollHeight;
     }
 
     worker.onerror = function(e) {
@@ -51,14 +63,6 @@
     let GLOBAL = {
         'filename': undefined
     }
-
-    var Module = {
-        'print': function(text) {
-            var logger = document.getElementById('log');
-            console.log(text);
-            logger.innerHTML += text + '<br />';
-        },
-    };
 
     function uploaded(file) {
         if (file === undefined) { // via upload button
@@ -82,8 +86,8 @@
         put_status("Checking file");
         const filename = file.name;
         const extension = filename.toLowerCase().slice(filename.lastIndexOf(".")+1, filename.length);
-        if (extension!=="stl") {
-            put_status("Please upload an stl file not "+ extension);
+        if (extension!=="stl" && extension!=="obj") {
+            put_status("Please upload an stl or obj file not "+ extension);
             return;
         }
         success_cb();
@@ -115,16 +119,20 @@
     </div>
     <a id="download"><button id="download_button" disabled>Click to Download</button></a>
     <div id="info">
-        <div>
+        <div id="note_box">
             <h3>Note</h3>
             <ul>
                 <li>WebAssembly Version of <a href="https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification">Fast Quadric Mesh Simplification by spe4cerat</a></li>
-                <li>Make Sure HTML is rendering  <img src="http://i.imgur.com/fyMbwZF.gif" alt="tiger" width="215" height="120"></li>
             </ul>
         </div>
-        <!-- <div> -->
-            <!-- <h3>Upcoming features</h3> -->
-        <!-- </div> -->
+        <div>
+            <h3>Simplification Process Log</h3>
+                <div id="simplify_box">
+                    <ul id="simplify_log">
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="log"></div>

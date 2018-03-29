@@ -34,32 +34,44 @@ void showHelp(const char * argv[]) {
 #endif
 } //showHelp()
 
-int simplify(std::string file_path, std::string export_path, float reduceFraction, float agressiveness) {
+bool is_extension(const char* file_path, const char* extension) {
+    char file_extension[3];
+
+    file_extension[0] = file_path[strlen(file_path)-3];
+    file_extension[1] = file_path[strlen(file_path)-2];
+    file_extension[2] = file_path[strlen(file_path)-1];
+
+    return (file_extension[0] == extension[0]
+            and file_extension[1] == extension[1]
+            and file_extension[2] == extension[2]);
+}
+
+bool is_obj(const char* file_path) {
+    return is_extension(file_path, "obj");
+}
+
+bool is_stl(const char* file_path) {
+    return is_extension(file_path, "stl");
+}
+
+int simplify(const char* file_path, const char* export_path, float reduceFraction, float agressiveness) {
 
     printf("Mesh Simplification (C)2014 by Sven Forstmann in 2014, MIT License (%zu-bit)\n", sizeof(size_t)*8);
 
-    if (file_path.empty() or export_path.empty()) {
-        printf("file path or export path is empty!");
-        return EXIT_SUCCESS;
-    }
-
-    std::string file_extension = file_path.substr(file_path.find_last_of('.')+1, file_path.size());
-    printf("file extension is %s\n", file_extension.c_str());
-
-    if (file_extension == "obj") {
-        Simplify::load_obj(file_path.c_str());
+    if (is_obj(file_path)) {
+        Simplify::load_obj(file_path);
         printf("loading obj\n");
     }
-    else if (file_extension == "stl") {
+    else if (is_stl(file_path)) {
         printf("loading stl\n");
-        Simplify::load_stl(file_path.c_str());
+        Simplify::load_stl(file_path);
     } else {
-        printf("file is not obj or stl %s with extension %s\n", file_path.c_str(), file_extension.c_str());
+        printf("file is not obj or stl %s\n", file_path);
         return EXIT_FAILURE;
     }
 
     if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3)) {
-        printf("triangles size %d vertices size %d\n", Simplify::triangles.size(), Simplify::vertices.size());
+        printf("triangles size or vertices size less than 3\n");
         return EXIT_FAILURE;
     }
 
@@ -86,26 +98,26 @@ int simplify(std::string file_path, std::string export_path, float reduceFractio
         return EXIT_FAILURE;
     }
 
-    std::string export_extension = export_path.substr(export_path.find_last_of(".")+1);
-    if (export_extension == "obj") {
+    if (is_obj(export_path)) {
         printf("exporting obj\n");
-        Simplify::write_obj(export_path.c_str());
+        Simplify::write_obj(export_path);
     }
-    else if (export_extension == "stl") {
+    else if (is_stl(export_path)) {
         printf("exporting stl\n");
-        Simplify::write_stl(export_path.c_str());
+        Simplify::write_stl(export_path);
     } else {
-        printf("export file is not obj or stl %s\n", export_path.c_str());
+        printf("export file is not obj or stl %s\n", export_path);
         return EXIT_FAILURE;
     }
+
     printf("Output: %zu vertices, %zu triangles (%f reduction; %.4f sec)\n",Simplify::vertices.size(), Simplify::triangles.size()
         , (float)Simplify::triangles.size()/ (float) startSize  , ((float)(clock()-start))/CLOCKS_PER_SEC );
     return EXIT_SUCCESS;
 }
 
 extern "C" {
-int simplify(std::string file_path, float reduceFraction) {
-    printf("Going to simplify %s\n", file_path.c_str());
+int simplify(const char* file_path, float reduceFraction) {
+    printf("Going to simplify %s\n", file_path);
     return simplify(file_path, "simplify.stl", reduceFraction, 0.7);// aggressive
 }
 }
@@ -116,8 +128,8 @@ int main(int argc, const char * argv[]) {
         return EXIT_SUCCESS;
     }
 
-    std::string file_path = argv[1];
-    std::string export_path = argv[2];
+    const char* file_path = argv[1];
+    const char* export_path = argv[2];
     float reduceFraction = 0.5;
     if (argc > 3) {
         reduceFraction = atof(argv[3]);
