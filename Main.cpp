@@ -34,85 +34,98 @@ void showHelp(const char * argv[]) {
 #endif
 } //showHelp()
 
-extern "C" {
-int simplify(uint8_t* buf, float reduceFraction) {
+int simplify(std::string file_path, std::string export_path, float reduceFraction, float agressiveness) {
 
-    Simplify::load_stl(buf);
-    // Simplify::load_stl(filepath.c_str());
-    if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3)) {
-        printf("triangle size or vertices size too small \n");
+    printf("Mesh Simplification (C)2014 by Sven Forstmann in 2014, MIT License (%zu-bit)\n", sizeof(size_t)*8);
+
+    if (file_path.empty() or export_path.empty()) {
+        printf("file path or export path is empty!");
+        return EXIT_SUCCESS;
+    }
+
+    std::string file_extension = file_path.substr(file_path.find_last_of('.')+1, file_path.size());
+    printf("file extension is %s\n", file_extension.c_str());
+
+    if (file_extension == "obj") {
+        Simplify::load_obj(file_path.c_str());
+        printf("loading obj\n");
+    }
+    else if (file_extension == "stl") {
+        printf("loading stl\n");
+        Simplify::load_stl(file_path.c_str());
+    } else {
+        printf("file is not obj or stl %s with extension %s\n", file_path.c_str(), file_extension.c_str());
         return EXIT_FAILURE;
     }
-    int target_count =  Simplify::triangles.size() >> 1;
-    if (reduceFraction > 1.0) reduceFraction = 1.0; //lossless only
 
+    if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3)) {
+        printf("triangles size %d vertices size %d\n", Simplify::triangles.size(), Simplify::vertices.size());
+        return EXIT_FAILURE;
+    }
+
+    int target_count =  Simplify::triangles.size() >> 1;
+
+    if (reduceFraction > 1.0) reduceFraction = 1.0; //lossless only
     if (reduceFraction <= 0.0) {
         printf("Ratio must be BETWEEN zero and one.\n");
         return EXIT_FAILURE;
     }
     target_count = round((float)Simplify::triangles.size() * reduceFraction);
-    printf("target_count %d\n", target_count);
 
     if (target_count < 4) {
         printf("Object will not survive such extreme decimation\n");
         return EXIT_FAILURE;
     }
-    double agressiveness = 7.0;
     clock_t start = clock();
     printf("Input: %zu vertices, %zu triangles (target %d)\n", Simplify::vertices.size(), Simplify::triangles.size(), target_count);
     int startSize = Simplify::triangles.size();
     Simplify::simplify_mesh(target_count, agressiveness, true);
+    //Simplify::simplify_mesh_lossless( false);
     if ( Simplify::triangles.size() >= startSize) {
         printf("Unable to reduce mesh.\n");
         return EXIT_FAILURE;
     }
-    Simplify::write_stl("simplify.stl");
+
+    std::string export_extension = export_path.substr(export_path.find_last_of(".")+1);
+    if (export_extension == "obj") {
+        printf("exporting obj\n");
+        Simplify::write_obj(export_path.c_str());
+    }
+    else if (export_extension == "stl") {
+        printf("exporting stl\n");
+        Simplify::write_stl(export_path.c_str());
+    } else {
+        printf("export file is not obj or stl %s\n", export_path.c_str());
+        return EXIT_FAILURE;
+    }
     printf("Output: %zu vertices, %zu triangles (%f reduction; %.4f sec)\n",Simplify::vertices.size(), Simplify::triangles.size()
-            , (float)Simplify::triangles.size()/ (float) startSize  , ((float)(clock()-start))/CLOCKS_PER_SEC );
+        , (float)Simplify::triangles.size()/ (float) startSize  , ((float)(clock()-start))/CLOCKS_PER_SEC );
     return EXIT_SUCCESS;
+}
+
+extern "C" {
+int simplify(std::string file_path, float reduceFraction) {
+    printf("Going to simplify %s\n", file_path.c_str());
+    return simplify(file_path, "simplify.stl", reduceFraction, 0.7);// aggressive
 }
 }
 
 int main(int argc, const char * argv[]) {
-    // printf("Mesh Simplification (C)2014 by Sven Forstmann in 2014, MIT License (%zu-bit)\n", sizeof(size_t)*8);
-    // if (argc < 3) {
-        // showHelp(argv);
-        // return EXIT_SUCCESS;
-    // }
-	// // Simplify::load_obj(argv[1]);
-    // Simplify::load_stl(argv[1]);
-    // if ((Simplify::triangles.size() < 3) || (Simplify::vertices.size() < 3))
-        // return EXIT_FAILURE;
-    // int target_count =  Simplify::triangles.size() >> 1;
-    // if (argc > 3) {
-        // float reduceFraction = atof(argv[3]);
-        // if (reduceFraction > 1.0) reduceFraction = 1.0; //lossless only
-        // if (reduceFraction <= 0.0) {
-            // printf("Ratio must be BETWEEN zero and one.\n");
-            // return EXIT_FAILURE;
-        // }
-        // target_count = round((float)Simplify::triangles.size() * atof(argv[3]));
-    // }
-    // if (target_count < 4) {
-        // printf("Object will not survive such extreme decimation\n");
-        // return EXIT_FAILURE;
-    // }
-    // double agressiveness = 7.0;
-    // if (argc > 4) {
-        // agressiveness = atof(argv[4]);
-    // }
-    // clock_t start = clock();
-    // printf("Input: %zu vertices, %zu triangles (target %d)\n", Simplify::vertices.size(), Simplify::triangles.size(), target_count);
-    // int startSize = Simplify::triangles.size();
-    // Simplify::simplify_mesh(target_count, agressiveness, true);
-    // //Simplify::simplify_mesh_lossless( false);
-    // if ( Simplify::triangles.size() >= startSize) {
-        // printf("Unable to reduce mesh.\n");
-        // return EXIT_FAILURE;
-    // }
-    // // Simplify::write_obj(argv[2]);
-    // Simplify::write_stl(argv[2]);
-	// // printf("Output: %zu vertices, %zu triangles (%f reduction; %.4f sec)\n",Simplify::vertices.size(), Simplify::triangles.size()
-		// // , (float)Simplify::triangles.size()/ (float) startSize  , ((float)(clock()-start))/CLOCKS_PER_SEC );
-	// return EXIT_SUCCESS;
+    if (argc < 3) {
+        showHelp(argv);
+        return EXIT_SUCCESS;
+    }
+
+    std::string file_path = argv[1];
+    std::string export_path = argv[2];
+    float reduceFraction = 0.5;
+    if (argc > 3) {
+        reduceFraction = atof(argv[3]);
+    }
+
+    float agressiveness = 7.0;
+    if (argc > 4) {
+        agressiveness = atof(argv[4]);
+    }
+    return simplify(file_path, export_path, reduceFraction, agressiveness);
 }

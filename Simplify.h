@@ -29,6 +29,7 @@
 #include <vector>
 #include <math.h>
 #include <float.h> //FLT_EPSILON, DBL_EPSILON
+#include <stdint.h>
 
 #define loopi(start_l,end_l) for ( int i=start_l;i<end_l;++i )
 #define loopi(start_l,end_l) for ( int i=start_l;i<end_l;++i )
@@ -44,7 +45,7 @@ struct VertexSTL
     VertexSTL(float x, float y, float z) : x(x), y(y), z(z) {}
 
     float x, y, z;
-    unsigned int i=0;
+    unsigned int i;
 
     bool operator!=(const VertexSTL& rhs) const
     {
@@ -68,22 +69,34 @@ inline std::string trim(std::string& str)
 inline VertexSTL get_vector(std::string& str)
 {
     // "vertex float float float"
-    auto space0 = str.find_first_of(' ');
-    str.erase(0, space0); // remove "vertex"
-    str.erase(0, str.find_first_not_of(' ')); //prefixing spaces
-    auto space1 = str.find_first_of(' ');
+    float x, y, z;
 
-    float x = std::stof(str.substr(0, space1));
+    // if(sscanf(str.c_str(),"%*[ \t]vertex%*[ \t]%f%*[ \t]%f%*[ \t]%f%*[ \t]",
+        // &x,	&y,	&z) == 3)
+        // printf("%f %f %f", x, y, z);
+    if(sscanf(str.c_str(),"vertex %f %f %f",
+        &x,	&y,	&z) != 3) {
+        printf("weird format ascii stl exiting\n");
+        exit(1);
+    }
+    VertexSTL v(x, y, z);
 
-    str.erase(0, space1+1); // remove x
-    str.erase(0, str.find_first_not_of(' ')); //prefixing spaces
+    // int space0 = str.find_first_of(' ');
+    // str.erase(0, space0); // remove "vertex"
+    // str.erase(0, str.find_first_not_of(' ')); //prefixing spaces
+    // int space1 = str.find_first_of(' ');
 
-    auto space2 = str.find_last_of(' ');
+    // float x = std::stof(str.substr(0, space1));
 
-    VertexSTL v(x,
-        std::stof(str.substr(0, space2)),
-        std::stof(str.substr(space2, str.size()))
-    );
+    // str.erase(0, space1+1); // remove x
+    // str.erase(0, str.find_first_not_of(' ')); //prefixing spaces
+
+    // int space2 = str.find_last_of(' ');
+
+    // VertexSTL v(x,
+        // std::stof(str.substr(0, space2)),
+        // std::stof(str.substr(space2, str.size()))
+    // );
     return v;
 }
 
@@ -860,9 +873,9 @@ namespace Simplify
 				}
 				else
 				{
-					printf("unrecognized sequence\n");
+					printf("unrecognized sequence exiting \n");
 					printf("%s\n",line);
-					while(1);
+                    exit(1);
 				}
 				if ( tri_ok )
 				{
@@ -905,23 +918,23 @@ namespace Simplify
 		fclose(file);
 	}
 
-    std::vector<VertexSTL> load_binary(uint8_t* buf) {
-        std::uint32_t num_faces;
-        std::memcpy(&num_faces, &buf[80], 4);
-        printf("num faces %d\n", num_faces);
+    // std::vector<VertexSTL> load_binary(uint8_t* buf) {
+        // std::uint32_t num_faces;
+        // std::memcpy(&num_faces, &buf[80], 4);
+        // printf("num faces %d\n", num_faces);
 
-        const unsigned int num_indices = num_faces*3;
-        std::vector<VertexSTL> all_vertices(num_indices);
+        // const unsigned int num_indices = num_faces*3;
+        // std::vector<VertexSTL> all_vertices(num_indices);
 
-        for (int i=0;i<num_faces;i+=1) {
-            for (int j=0;j<3;j++) {
-                const int index = i*3+j;
-                const int position = 84 + 12 + i*50 + j*12;
-                std::memcpy(&all_vertices[index], &buf[position], 12);
-            }
-        }
-        return all_vertices;
-    }
+        // for (int i=0;i<num_faces;i+=1) {
+            // for (int j=0;j<3;j++) {
+                // const int index = i*3+j;
+                // const int position = 84 + 12 + i*50 + j*12;
+                // std::memcpy(&all_vertices[index], &buf[position], 12);
+            // }
+        // }
+        // return all_vertices;
+    // }
 
     std::vector<VertexSTL> load_binary(const char* filename) {
         printf("loading binary\n");
@@ -929,7 +942,7 @@ namespace Simplify
         fbin.open(filename, std::ios::in | std::ios::binary);
         fbin.seekg(80);
 
-        std::uint32_t num_faces;
+        int num_faces;
         fbin.read(reinterpret_cast<char *>(&num_faces), 4);
 
         const unsigned int num_indices = num_faces*3;
@@ -963,7 +976,7 @@ namespace Simplify
         while (!file.eof()) {
             std::getline(file, line);
             line = trim(line);
-            if (line.rfind("VertexSTL", 0) == 0) {
+            if (line.rfind("vertex", 0) == 0) {
                 all_vertices.push_back(get_vector(line));
             }
         }
@@ -991,17 +1004,17 @@ namespace Simplify
     }
 
 
-    void load_stl(uint8_t* buf) {
+    void load_stl(const char* filename) {
         vertices.clear();
         triangles.clear();
 
-        auto all_vertices = load_binary(buf);
-        const uint32_t num_indices = all_vertices.size();
+        std::vector<VertexSTL> all_vertices = load_stl_vertices(filename);
+        const int32_t num_indices = all_vertices.size();
         for (int c=0;c<all_vertices.size();c++)
             all_vertices[c].i = c;
 
-        std::uint32_t *indices;
-        indices = (std::uint32_t *) malloc(num_indices * sizeof(std::uint32_t));
+        int32_t *indices;
+        indices = (int32_t *) malloc(num_indices * sizeof(int32_t));
 
         std::sort(all_vertices.begin(), all_vertices.end());
 
@@ -1013,8 +1026,9 @@ namespace Simplify
         float maxz = -999999;
 
         unsigned int num_vertices = 0;
-        for (auto& v : all_vertices)
+        for (int i=0;i<all_vertices.size();i++)
         {
+            VertexSTL v = all_vertices[i];
             if (!num_vertices || v != all_vertices[num_vertices-1])
             {
                 all_vertices[num_vertices++] = v;
@@ -1029,7 +1043,9 @@ namespace Simplify
         }
         all_vertices.resize(num_vertices);
 
-        for (auto& _v : all_vertices) {
+        for (int i=0;i<all_vertices.size();i++)
+        {
+            VertexSTL _v = all_vertices[i];
             Vertex v;
             v.p.x = _v.x; v.p.y = _v.y; v.p.z = _v.z;
             vertices.push_back(v);
@@ -1080,9 +1096,9 @@ namespace Simplify
 
         loopi(0,triangles.size()) if(!triangles[i].deleted)
         {
-            auto v0 = vertices[triangles[i].v[0]].p;
-            auto v1 = vertices[triangles[i].v[1]].p;
-            auto v2 = vertices[triangles[i].v[2]].p;
+            vec3f v0 = vertices[triangles[i].v[0]].p;
+            vec3f v1 = vertices[triangles[i].v[1]].p;
+            vec3f v2 = vertices[triangles[i].v[2]].p;
 
             vec3f n;
             n.cross(v1-v0,v2-v0);
