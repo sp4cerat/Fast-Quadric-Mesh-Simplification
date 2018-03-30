@@ -13,8 +13,6 @@
     <!-- gtag('config', 'UA-115758488-1'); -->
 <!-- </script> -->
 
-<script async type="text/javascript" src="./a.out.js"></script>
-
 <style>
 
 #dragAndDrop {
@@ -39,6 +37,20 @@
 #note_box {
     margin-right: 30px;
 }
+
+#download_container {
+    display: flex;
+    justify-content: center;
+}
+
+#download {
+    width:50%;
+    height:40px;
+    margin:0 auto;
+    margin-top:10px;
+    cursor: pointer;
+}
+
 </style>
 
 <script type="text/javascript">
@@ -47,10 +59,32 @@
     var worker = new Worker('worker.js');
 
     worker.onmessage = function(e) {
-        var logger = document.getElementById('simplify_log');
-        logger.innerHTML += '<li>' + e.data + '</li>';
-        var box = document.getElementById('simplify_box');
-        box.scrollTop = box.scrollHeight;
+        const log = e.data.log;
+        if (log !== undefined) {
+            var logger = document.getElementById('simplify_log');
+            logger.innerHTML += '<li>' + log + '</li>';
+            var box = document.getElementById('simplify_box');
+            box.scrollTop = box.scrollHeight;
+            return;
+        }
+
+        const file = e.data.blob;
+        const filename = e.data.original_name;
+        if (file !== undefined && filename !== undefined) {
+            let url = window.URL.createObjectURL(file);
+            const s_name = "simplify_"+filename.slice(0, -3) + "stl"; // HACK
+
+            var download = document.getElementById('download_a');
+            download.href = url;
+            download.download = s_name;
+
+            var download_button = document.getElementById('download');
+            download_button.innerHTML = "Click to download "+s_name;
+            download_button.disabled = false;
+            return;
+        }
+
+        console.error("Unknown Message from WebWorker", e.data);
     }
 
     worker.onerror = function(e) {
@@ -62,6 +96,14 @@
 
     let GLOBAL = {
         'filename': undefined
+    }
+
+    function set_percetage_html() {
+        document.getElementById('percentage').value = get_value_from_slider();
+    }
+
+    function get_value_from_slider() {
+        return document.getElementById('slider').valueAsNumber;
     }
 
     function uploaded(file) {
@@ -77,8 +119,7 @@
         check_file(file, function(){check_file_success(file)});
 
         function check_file_success(file) {
-            console.log("file", file);
-            worker.postMessage(file);
+            worker.postMessage({"blob":file, "percentage": get_value_from_slider()/100});
         }
     }
 
@@ -105,6 +146,12 @@
     {
         document.getElementById("status").textContent = text;
     }
+
+    function init() {
+        set_percetage_html();
+    }
+
+    window.onload = init;
 </script>
 
 <body>
@@ -114,10 +161,16 @@
          ondragover="event.stopPropagation(); event.preventDefault();"
          ondrop="event.stopPropagation(); event.preventDefault();
          dodrop(event);">
-        <span>Drag and drop STL files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></span>
+        <ol>
+            <li>Drag and drop STL/OBJ files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></li>
+            <li>Select simplify to <input type="range" min="0" max="100" id="slider" step="0.1" oninput="set_percetage_html()"><output for="percentage" id="percentage">50</output>%</li>
+        </ol>
         <span>Status: <span id="status">Waiting for upload</span>
     </div>
-    <a id="download"><button id="download_button" disabled>Click to Download</button></a>
+    <div id="download_container">
+        <a id="download_a" hidden></a>
+        <button id="download" disabled onclick="document.getElementById('download_a').click()">Click to Download</button>
+    </div>
     <div id="info">
         <div id="note_box">
             <h3>Note</h3>

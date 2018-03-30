@@ -118,7 +118,7 @@ int simplify(const char* file_path, const char* export_path, float reduceFractio
 extern "C" {
 int simplify(const char* file_path, float reduceFraction) {
     printf("Going to simplify %s\n", file_path);
-    return simplify(file_path, "simplify.stl", reduceFraction, 0.7);// aggressive
+    return simplify(file_path, "simplify.stl", reduceFraction, 7.0);// aggressive
 }
 }
 
