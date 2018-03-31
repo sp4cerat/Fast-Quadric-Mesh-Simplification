@@ -29,7 +29,7 @@
 }
 
 #simplify_box {
-    height: 400px;
+    height: 20vh;
     overflow: auto;
     border: 1px solid black;
 }
@@ -49,6 +49,21 @@
     margin:0 auto;
     margin-top:10px;
     cursor: pointer;
+    border: 0px;
+    border-radius: 10px;
+    background: rgb(240, 240, 240);
+}
+
+.download_ready_signal {
+  animation: download_ready_signal 2s linear infinite;
+}
+
+@keyframes download_ready_signal {
+  50% {
+    opacity: 0.1;
+    color: green;
+    width: 60%;
+  }
 }
 
 </style>
@@ -81,6 +96,13 @@
             var download_button = document.getElementById('download');
             download_button.innerHTML = "Click to download "+s_name;
             download_button.disabled = false;
+            download_button.className = "download_ready_signal";
+            console.log(download_button);
+            setTimeout(function (){
+                console.log("reset className");
+                download_button.className = "";
+            }, 2000);
+            put_status("Ready to download");
             return;
         }
 
@@ -95,11 +117,17 @@
     }
 
     let GLOBAL = {
-        'filename': undefined
+        'blob': undefined
     }
 
-    function set_percetage_html() {
-        document.getElementById('percentage').value = get_value_from_slider();
+    function update_simplify_to() {
+        console.log(GLOBAL);
+        const slider_value = get_value_from_slider();
+        document.getElementById('percentage').innerHTML = slider_value;
+        if (GLOBAL.blob) {
+            console.log("setting size");
+            document.getElementById('size').innerHTML = Math.ceil(slider_value * GLOBAL.blob.size/(100*1024*1024));
+        }
     }
 
     function get_value_from_slider() {
@@ -115,10 +143,13 @@
             // https://stackoverflow.com/a/12102992/5260518
             this.value = null;
         }
+        GLOBAL.blob = file;
 
         check_file(file, function(){check_file_success(file)});
 
         function check_file_success(file) {
+            update_simplify_to();
+            put_status("Simplifying by your browser...See log below");
             worker.postMessage({"blob":file, "percentage": get_value_from_slider()/100});
         }
     }
@@ -138,7 +169,6 @@
         var dt = event.dataTransfer;
         var file = dt.files[0];
         var filename = file.name;
-        put_status("Simplifying " + filename + " using WebAssembly.");
         uploaded(file);
     }
 
@@ -148,7 +178,7 @@
     }
 
     function init() {
-        set_percetage_html();
+        update_simplify_to();
     }
 
     window.onload = init;
@@ -162,14 +192,14 @@
          ondrop="event.stopPropagation(); event.preventDefault();
          dodrop(event);">
         <ol>
+            <li>Select simplify to <input type="range" min="1" max="100" id="slider" step="1" oninput="update_simplify_to()"><span id="percentage">50</span>% <span id="size">??</span>Mb</li>
             <li>Drag and drop STL/OBJ files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></li>
-            <li>Select simplify to <input type="range" min="0" max="100" id="slider" step="0.1" oninput="set_percetage_html()"><output for="percentage" id="percentage">50</output>%</li>
         </ol>
         <span>Status: <span id="status">Waiting for upload</span>
     </div>
     <div id="download_container">
         <a id="download_a" hidden></a>
-        <button id="download" disabled onclick="document.getElementById('download_a').click()">Click to Download</button>
+        <button id="download" disabled onclick="document.getElementById('download_a').click()">Nothing to download yet...</button>
     </div>
     <div id="info">
         <div id="note_box">
