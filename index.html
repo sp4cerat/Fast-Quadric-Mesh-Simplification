@@ -17,7 +17,7 @@
 
 #dragAndDrop {
     min-height: 200px;
-    white-space: pre;
+    white-space: pre-line;
     border: 1px dashed black;
     border-radius: 10px;
 }
@@ -84,22 +84,20 @@
         }
 
         const file = e.data.blob;
-        const filename = e.data.original_name;
-        if (file !== undefined && filename !== undefined) {
+        if (file !== undefined) {
+            const s_name = SIMPLIFY_FILE.simplify_name;
+
             let url = window.URL.createObjectURL(file);
-            const s_name = "simplify_"+filename.slice(0, -3) + "stl"; // HACK
 
             var download = document.getElementById('download_a');
             download.href = url;
             download.download = s_name;
 
             var download_button = document.getElementById('download');
-            download_button.innerHTML = "Click to download "+s_name;
+            download_button.innerHTML = "Click to download "+"<br>" +s_name;
             download_button.disabled = false;
             download_button.className = "download_ready_signal";
-            console.log(download_button);
             setTimeout(function (){
-                console.log("reset className");
                 download_button.className = "";
             }, 2000);
             put_status("Ready to download");
@@ -116,17 +114,35 @@
         );
     }
 
-    let GLOBAL = {
-        'blob': undefined
+    let SIMPLIFY_FILE = {
+        'blob': undefined,
+        get name(){
+            if (this.exists)
+                return this.blob.name;
+        },
+        get simplify_name() {
+            if (this.exists)
+                return "simplify_"+this.name;
+        },
+        get size() {
+            if (this.exists)
+                return this.blob.size;
+        },
+        get exists() {
+            if (this.blob)
+                return true;
+            else {
+                return false;
+            }
+        }
     }
 
+
     function update_simplify_to() {
-        console.log(GLOBAL);
         const slider_value = get_value_from_slider();
         document.getElementById('percentage').innerHTML = slider_value;
-        if (GLOBAL.blob) {
-            console.log("setting size");
-            document.getElementById('size').innerHTML = Math.ceil(slider_value * GLOBAL.blob.size/(100*1024*1024));
+        if (SIMPLIFY_FILE.exists) {
+            document.getElementById('size').innerHTML = Math.ceil(slider_value * SIMPLIFY_FILE.size/(100*1024*1024));
         }
     }
 
@@ -134,6 +150,7 @@
         return document.getElementById('slider').valueAsNumber;
     }
 
+    
     function uploaded(file) {
         if (file === undefined) { // via upload button
             var uploadform = document.getElementById("fileuploadform");
@@ -143,20 +160,21 @@
             // https://stackoverflow.com/a/12102992/5260518
             this.value = null;
         }
-        GLOBAL.blob = file;
 
-        check_file(file, function(){check_file_success(file)});
+        if (file === undefined) // not via upload button defined otherwise
+            file = SIMPLIFY_FILE.blob;
 
-        function check_file_success(file) {
-            update_simplify_to();
-            put_status("Simplifying by your browser...See log below");
-            worker.postMessage({"blob":file, "percentage": get_value_from_slider()/100});
-        }
+        console.log(SIMPLIFY_FILE);
+        SIMPLIFY_FILE.blob = file;
+        console.log(SIMPLIFY_FILE);
+
+        check_file(post_to_worker);
+
     }
 
-    function check_file(file, success_cb) {
+    function check_file(success_cb) {
         put_status("Checking file");
-        const filename = file.name;
+        const filename = SIMPLIFY_FILE.name;
         const extension = filename.toLowerCase().slice(filename.lastIndexOf(".")+1, filename.length);
         if (extension!=="stl" && extension!=="obj") {
             put_status("Please upload an stl or obj file not "+ extension);
@@ -165,6 +183,16 @@
         success_cb();
     }
 
+    function post_to_worker() {
+        update_simplify_to();
+        put_status("Simplifying by your browser...See log below");
+        worker.postMessage(
+            {"blob":SIMPLIFY_FILE.blob,
+             "percentage": get_value_from_slider()/100,
+             "simplify_name": SIMPLIFY_FILE.simplify_name
+            }
+        );
+    }
     function dodrop(event) {
         var dt = event.dataTransfer;
         var file = dt.files[0];
@@ -192,8 +220,9 @@
          ondrop="event.stopPropagation(); event.preventDefault();
          dodrop(event);">
         <ol>
-            <li>Select simplify to <input type="range" min="1" max="100" id="slider" step="1" oninput="update_simplify_to()"><span id="percentage">50</span>% <span id="size">??</span>Mb</li>
+            <li>Select simplify to <input type="range" min="1" max="99" value="50" id="slider" step="1" oninput="update_simplify_to()"><span id="percentage">50</span>% <span id="size">??</span>Mb</li>
             <li>Drag and drop STL/OBJ files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></li>
+            <li>Click <button onclick="uploaded()">Simplify</button></li>
         </ol>
         <span>Status: <span id="status">Waiting for upload</span>
     </div>
