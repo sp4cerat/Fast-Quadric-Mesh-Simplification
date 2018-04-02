@@ -22,6 +22,10 @@
     border-radius: 10px;
 }
 
+#status_span {
+    margin-left: 25px;
+}
+
 #info {
     width:100%
     display: -webkit-flex;
@@ -224,7 +228,7 @@
             <li>Drag and drop STL/OBJ files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></li>
             <li>Click <button onclick="uploaded()">Simplify</button></li>
         </ol>
-        <span>Status: <span id="status">Waiting for upload</span>
+        <span id="status_span">Status: <span id="status">Waiting for upload</span>
     </div>
     <div id="download_container">
         <a id="download_a" hidden></a>
