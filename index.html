@@ -70,6 +70,10 @@
   }
 }
 
+button {
+    cursor: pointer;
+}
+
 </style>
 
 <script type="text/javascript">
@@ -154,7 +158,6 @@
         return document.getElementById('slider').valueAsNumber;
     }
 
-    
     function uploaded(file) {
         if (file === undefined) { // via upload button
             var uploadform = document.getElementById("fileuploadform");
@@ -162,16 +165,17 @@
 
             // this helps to force trigger even if user upload the same file
             // https://stackoverflow.com/a/12102992/5260518
-            this.value = null;
+            uploadform.value = null;
         }
 
         if (file === undefined) // not via upload button defined otherwise
             file = SIMPLIFY_FILE.blob;
 
-        console.log(SIMPLIFY_FILE);
-        SIMPLIFY_FILE.blob = file;
-        console.log(SIMPLIFY_FILE);
+        var uploadform = document.getElementById("fileuploadform");
+        console.log(uploadform);
+        uploadform.files[0] = file;
 
+        SIMPLIFY_FILE.blob = file;
         check_file(post_to_worker);
 
     }
@@ -224,8 +228,8 @@
          ondrop="event.stopPropagation(); event.preventDefault();
          dodrop(event);">
         <ol>
-            <li>Select simplify to <input type="range" min="1" max="99" value="50" id="slider" step="1" oninput="update_simplify_to()"><span id="percentage">50</span>% <span id="size">??</span>Mb</li>
             <li>Drag and drop STL/OBJ files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></li>
+            <li>Select simplify to <input type="range" min="1" max="99" value="50" id="slider" step="1" oninput="update_simplify_to()"><span id="percentage">50</span>% <span id="size">??</span>Mb</li>
             <li>Click <button onclick="uploaded()">Simplify</button></li>
         </ol>
         <span id="status_span">Status: <span id="status">Waiting for upload</span>
