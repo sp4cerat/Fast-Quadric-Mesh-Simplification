@@ -35,12 +35,12 @@ Surf Ice is a tool for surface rendering the cortex with overlays to illustrate 
 **[Live Web Version by 
 Tiger Yuhao Huang](https://myminifactory.github.io/Fast-Quadric-Mesh-Simplification/)**
 
-![img](https://i.imgur.com/fbfwbrG.png)
+![img](https://i.imgur.com/N5e2U9u.png)
 
-**[ Unity Mesh Decimator by Mattias Edlund / Whinarn](https://github.com/Whinarn/UnityMeshSimplifier)
+**[ Unity Mesh Decimator by Mattias Edlund / Whinarn](https://github.com/Whinarn/UnityMeshSimplifier)**
 
-**[ .NET Mesh Decimator by Mattias Edlund / Whinarn](https://github.com/Whinarn/MeshDecimator)
+**[ .NET Mesh Decimator by Mattias Edlund / Whinarn](https://github.com/Whinarn/MeshDecimator)**
 
-**[ Javascript Mesh Decimator by Andrew Taber / ataber](https://github.com/ataber/mesh-simplify)
+**[ Javascript Mesh Decimator by Andrew Taber / ataber](https://github.com/ataber/mesh-simplify)**
 
 
