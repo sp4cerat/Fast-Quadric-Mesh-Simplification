@@ -32,3 +32,15 @@ Surf Ice is a tool for surface rendering the cortex with overlays to illustrate 
 ![img](https://www.nitrc.org/plugins/mwiki/images/thumb/1/17/Surfice%3ASimplify.jpg/180px-Surfice%3ASimplify.jpg)
 ![img](https://www.nitrc.org/plugins/mwiki/images/thumb/8/8e/Surfice%3AAmbientOcclusion.jpg/180px-Surfice%3AAmbientOcclusion.jpg)
 
+**[Live Web Version by 
+Tiger Yuhao Huang](https://myminifactory.github.io/Fast-Quadric-Mesh-Simplification/)**
+
+![img](https://i.imgur.com/fbfwbrG.png)
+
+**[ Unity Mesh Decimator by Mattias Edlund / Whinarn](https://github.com/Whinarn/UnityMeshSimplifier)
+
+**[ .NET Mesh Decimator by Mattias Edlund / Whinarn](https://github.com/Whinarn/MeshDecimator)
+
+**[ Javascript Mesh Decimator by Andrew Taber / ataber](https://github.com/ataber/mesh-simplify)
+
+
