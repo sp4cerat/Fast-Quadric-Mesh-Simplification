@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115758488-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-115758488-2');
+    </script>
+
+</head>
+
+<style>
+
+#dragAndDrop {
+    min-height: 200px;
+    white-space: pre-line;
+    border: 1px dashed black;
+    border-radius: 10px;
+}
+
+#status_span {
+    margin-left: 25px;
+}
+
+#info {
+    width:100%
+    display: -webkit-flex;
+    display: flex;
+}
+
+#simplify_box {
+    height: 20vh;
+    overflow: auto;
+    border: 1px solid black;
+}
+
+#note_box {
+    margin-right: 30px;
+}
+
+#download_container {
+    display: flex;
+    justify-content: center;
+}
+
+#download {
+    width:50%;
+    height:40px;
+    margin:0 auto;
+    margin-top:10px;
+    cursor: pointer;
+    border: 0px;
+    border-radius: 10px;
+    background: rgb(240, 240, 240);
+}
+
+.download_ready_signal {
+  animation: download_ready_signal 2s linear infinite;
+}
+
+@keyframes download_ready_signal {
+  50% {
+    opacity: 0.1;
+    color: green;
+    width: 60%;
+  }
+}
+
+button {
+    cursor: pointer;
+}
+
+</style>
+
+<script type="text/javascript">
+    `use strict`;
+
+    var worker = new Worker('worker.js');
+
+    worker.onmessage = function(e) {
+        const log = e.data.log;
+        if (log !== undefined) {
+            var logger = document.getElementById('simplify_log');
+            logger.innerHTML += '<li>' + log + '</li>';
+            var box = document.getElementById('simplify_box');
+            box.scrollTop = box.scrollHeight;
+            return;
+        }
+
+        const file = e.data.blob;
+        if (file !== undefined) {
+            const s_name = SIMPLIFY_FILE.simplify_name;
+
+            let url = window.URL.createObjectURL(file);
+
+            var download = document.getElementById('download_a');
+            download.href = url;
+            download.download = s_name;
+
+            var download_button = document.getElementById('download');
+            download_button.innerHTML = "Click to download "+"<br>" +s_name;
+            download_button.disabled = false;
+            download_button.className = "download_ready_signal";
+            setTimeout(function (){
+                download_button.className = "";
+            }, 2000);
+            put_status("Ready to download");
+            return;
+        }
+
+        console.error("Unknown Message from WebWorker", e.data);
+    }
+
+    worker.onerror = function(e) {
+        console.log(e);
+        console.log(
+            'ERROR: Line ', e.lineno, ' in ', e.filename, ': ', e.message
+        );
+    }
+
+    let SIMPLIFY_FILE = {
+        'blob': undefined,
+        get name(){
+            if (this.exists)
+                return this.blob.name;
+        },
+        get simplify_name() {
+            if (this.exists)
+                return "simplify_"+this.name;
+        },
+        get size() {
+            if (this.exists)
+                return this.blob.size;
+        },
+        get exists() {
+            if (this.blob)
+                return true;
+            else {
+                return false;
+            }
+        }
+    }
+
+
+    function update_simplify_to() {
+        const slider_value = get_value_from_slider();
+        document.getElementById('percentage').innerHTML = slider_value;
+        if (SIMPLIFY_FILE.exists) {
+            document.getElementById('size').innerHTML = Math.ceil(slider_value * SIMPLIFY_FILE.size/(100*1024*1024));
+        }
+    }
+
+    function get_value_from_slider() {
+        return document.getElementById('slider').valueAsNumber;
+    }
+
+    function uploaded(file) {
+        if (file === undefined) { // via upload button
+            var uploadform = document.getElementById("fileuploadform");
+            file = uploadform.files[0];
+
+            // this helps to force trigger even if user upload the same file
+            // https://stackoverflow.com/a/12102992/5260518
+            uploadform.value = null;
+        }
+
+        if (file === undefined) // not via upload button defined otherwise
+            file = SIMPLIFY_FILE.blob;
+
+        var uploadform = document.getElementById("fileuploadform");
+        console.log(uploadform);
+        uploadform.files[0] = file;
+
+        SIMPLIFY_FILE.blob = file;
+        check_file(post_to_worker);
+
+    }
+
+    function check_file(success_cb) {
+        put_status("Checking file");
+        const filename = SIMPLIFY_FILE.name;
+        const extension = filename.toLowerCase().slice(filename.lastIndexOf(".")+1, filename.length);
+        if (extension!=="stl" && extension!=="obj") {
+            put_status("Please upload an stl or obj file not "+ extension);
+            return;
+        }
+        success_cb();
+    }
+
+    function post_to_worker() {
+        update_simplify_to();
+        put_status("Simplifying by your browser...See log below");
+        worker.postMessage(
+            {"blob":SIMPLIFY_FILE.blob,
+             "percentage": get_value_from_slider()/100,
+             "simplify_name": SIMPLIFY_FILE.simplify_name
+            }
+        );
+    }
+    function dodrop(event) {
+        var dt = event.dataTransfer;
+        var file = dt.files[0];
+        var filename = file.name;
+        uploaded(file);
+    }
+
+    function put_status(text)
+    {
+        document.getElementById("status").textContent = text;
+    }
+
+    function init() {
+        update_simplify_to();
+    }
+
+    window.onload = init;
+</script>
+
+<body>
+    <h1>Mesh Simplification</h1>
+    <div id="dragAndDrop"
+         ondragenter="event.stopPropagation(); event.preventDefault();"
+         ondragover="event.stopPropagation(); event.preventDefault();"
+         ondrop="event.stopPropagation(); event.preventDefault();
+         dodrop(event);">
+        <ol>
+            <li>Drag and drop STL/OBJ files here or <input type="file" onChange="uploaded()" id="fileuploadform"/></li>
+            <li>Select simplify to <input type="range" min="1" max="99" value="50" id="slider" step="1" oninput="update_simplify_to()"><span id="percentage">50</span>% <span id="size">??</span>Mb</li>
+            <li>Click <button onclick="uploaded()">Simplify</button></li>
+        </ol>
+        <span id="status_span">Status: <span id="status">Waiting for upload</span>
+    </div>
+    <div id="download_container">
+        <a id="download_a" hidden></a>
+        <button id="download" disabled onclick="document.getElementById('download_a').click()">Nothing to download yet...</button>
+    </div>
+    <div id="info">
+        <div id="note_box">
+            <h3>Note</h3>
+            <ul>
+                <li>WebAssembly Version of <a href="https://github.com/sp4cerat/Fast-Quadric-Mesh-Simplification">Fast Quadric Mesh Simplification by spe4cerat</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3>Simplification Process Log</h3>
+                <div id="simplify_box">
+                    <ul id="simplify_log">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="log"></div>
+
+    <a href="https://github.com/MyMiniFactory/Fast-Quadric-Mesh-Simplification"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+</body>
+
+</html>
