@@ -21,7 +21,9 @@
 //#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <map>
 #include <vector>
+#include <string>
 #include <math.h>
 #include <float.h> //FLT_EPSILON, DBL_EPSILON
 
@@ -209,8 +211,34 @@ struct vec3f
 		z=(double)random_double_01(z);
 		return *this;
 	}
+
 };
 
+vec3f barycentric(const vec3f &p, const vec3f &a, const vec3f &b, const vec3f &c){
+    vec3f v0 = b-a;
+    vec3f v1 = c-a;
+    vec3f v2 = p-a;
+    double d00 = v0.dot(v0);
+    double d01 = v0.dot(v1);
+    double d11 = v1.dot(v1);
+    double d20 = v2.dot(v0);
+    double d21 = v2.dot(v1);
+    double denom = d00*d11-d01*d01;
+    double v = (d11 * d20 - d01 * d21) / denom;
+    double w = (d00 * d21 - d01 * d20) / denom;
+    double u = 1.0 - v - w;
+    return vec3f(u,v,w);
+}
+
+vec3f interpolate(const vec3f &p, const vec3f &a, const vec3f &b, const vec3f &c, const vec3f attrs[3])
+{
+    vec3f bary = barycentric(p,a,b,c);
+    vec3f out = vec3f(0,0,0);
+    out = out + attrs[0] * bary.x;
+    out = out + attrs[1] * bary.y;
+    out = out + attrs[2] * bary.z;
+    return out;
+}
 
 double min(double v1, double v2) {
 	return fmin(v1,v2);
@@ -282,18 +310,22 @@ namespace Simplify
 {
 	// Global Variables & Strctures
 
-	struct Triangle { int v[3];double err[4];int deleted,dirty;vec3f n; };
+	struct Triangle { int v[3];double err[4];int deleted,dirty;vec3f n;int uvs[3];vec3f uv[3];int material=-1; };
 	struct Vertex { vec3f p;int tstart,tcount;SymetricMatrix q;int border;};
 	struct Ref { int tid,tvertex; };
 	std::vector<Triangle> triangles;
 	std::vector<Vertex> vertices;
+    std::vector<vec3f> uvs;
 	std::vector<Ref> refs;
+    std::string mtllib;
+    std::vector<std::string> materials;
 
 	// Helper functions
 
 	double vertex_error(SymetricMatrix q, double x, double y, double z);
 	double calculate_error(int id_v1, int id_v2, vec3f &p_result);
 	bool flipped(vec3f p,int i0,int i1,Vertex &v0,Vertex &v1,std::vector<int> &deleted);
+    void update_uvs(int i0,const Vertex &v,const vec3f &p,std::vector<int> &deleted);
 	void update_triangles(int i0,Vertex &v,std::vector<int> &deleted,int &deleted_triangles);
 	void update_mesh(int iteration);
 	void compact_mesh();
@@ -309,7 +341,16 @@ namespace Simplify
 	void simplify_mesh(int target_count, double agressiveness=7, bool verbose=false)
 	{
 		// init
-		loopi(0,triangles.size()) triangles[i].deleted=0;
+		loopi(0,triangles.size())
+        {
+            triangles[i].deleted=0;
+            if (uvs.size())
+            {
+                triangles[i].uv[0] = uvs[triangles[i].uvs[0]];
+                triangles[i].uv[1] = uvs[triangles[i].uvs[1]];
+                triangles[i].uv[2] = uvs[triangles[i].uvs[2]];
+            }
+        }
 
 		// main iteration loop
 		int deleted_triangles=0;
@@ -369,6 +410,11 @@ namespace Simplify
 
 					if( flipped(p,i1,i0,v1,v0,deleted1) ) continue;
 
+                    if ( uvs.size() > 0  )
+                    {
+                        update_uvs(i0,v0,p,deleted0);
+                        update_uvs(i0,v1,p,deleted1);
+                    }
 
 					// not flipped, so remove edge
 					v0.p=p;
@@ -455,6 +501,12 @@ namespace Simplify
 					if( flipped(p,i0,i1,v0,v1,deleted0) ) continue;
 					if( flipped(p,i1,i0,v1,v0,deleted1) ) continue;
 
+                    if ( uvs.size() > 0 )
+                    {
+                        update_uvs(i0,v0,p,deleted0);
+                        update_uvs(i0,v1,p,deleted1);
+                    }
+
 					// not flipped, so remove edge
 					v0.p=p;
 					v0.q=v1.q+v0.q;
@@ -517,6 +569,23 @@ namespace Simplify
 		}
 		return false;
 	}
+
+    // update_uvs
+
+    void update_uvs(int i0,const Vertex &v,const vec3f &p,std::vector<int> &deleted)
+	{
+		loopk(0,v.tcount)
+		{
+            Ref &r=refs[v.tstart+k];
+			Triangle &t=triangles[r.tid];
+			if(t.deleted)continue;
+			if(deleted[k])continue;
+            vec3f p1=vertices[t.v[0]].p;
+            vec3f p2=vertices[t.v[1]].p;
+            vec3f p3=vertices[t.v[2]].p;
+            t.uv[r.tvertex] = interpolate(p,p1,p2,p3,t.uv);
+        }
+    }
 
 	// Update triangle connections and edge error after a edge is collapsed
 
@@ -742,6 +811,26 @@ namespace Simplify
 		return error;
 	}
 
+    char *trimwhitespace(char *str)
+    {
+        char *end;
+
+        // Trim leading space
+        while(isspace((unsigned char)*str)) str++;
+
+        if(*str == 0)  // All spaces?
+        return str;
+
+        // Trim trailing space
+        end = str + strlen(str) - 1;
+        while(end > str && isspace((unsigned char)*end)) end--;
+
+        // Write new null terminator
+        *(end+1) = 0;
+
+        return str;
+    }
+
 	//Option : Load OBJ
 	void load_obj(const char* filename){
 		vertices.clear();
@@ -758,10 +847,44 @@ namespace Simplify
 		char line[1000];
 		memset ( line,0,1000 );
 		int vertex_cnt = 0;
+        int material = -1;
+        std::map<std::string, int> material_map;
 		while(fgets( line, 1000, fn ) != NULL)
 		{
 			Vertex v;
-			if ( line[0] == 'v' )
+            vec3f uv;
+
+            if (strncmp(line, "mtllib", 6) == 0)
+            {
+                mtllib = trimwhitespace(&line[7]);
+            }
+            if (strncmp(line, "usemtl", 6) == 0)
+            {
+                std::string usemtl = trimwhitespace(&line[7]);
+                if (material_map.find(usemtl) == material_map.end())
+                {
+                    material_map[usemtl] = materials.size();
+                    materials.push_back(usemtl);
+                }
+                material = material_map[usemtl];
+            }
+
+            if ( line[0] == 'v' && line[1] == 't' )
+            {
+                if ( line[2] == ' ' )
+                if(sscanf(line,"vt %lf %lf",
+                    &uv.x,&uv.y)==2)
+                {
+                    uv.z = 0;
+                    uvs.push_back(uv);
+                } else
+                if(sscanf(line,"vt %lf %lf %lf",
+                    &uv.x,&uv.y,&uv.z)==3)
+                {
+                    uvs.push_back(uv);
+                }
+            }
+            else if ( line[0] == 'v' )
 			{
 				if ( line[1] == ' ' )
 				if(sscanf(line,"v %lf %lf %lf",
@@ -775,6 +898,7 @@ namespace Simplify
 			{
 				Triangle t;
 				bool tri_ok = false;
+                bool has_uv = false;
 
 				if(sscanf(line,"f %d %d %d",
 					&integers[0],&integers[1],&integers[2])==3)
@@ -799,6 +923,7 @@ namespace Simplify
 					&integers[2],&integers[8],&integers[5])==9)
 				{
 					tri_ok = true;
+                    has_uv = true;
 				}
 				else
 				{
@@ -812,7 +937,13 @@ namespace Simplify
 					t.v[1] = integers[1]-1-vertex_cnt;
 					t.v[2] = integers[2]-1-vertex_cnt;
 
-					//tri.material = material;
+                    if ( has_uv )
+                    {
+                        t.uvs[0]=integers[6]-1-vertex_cnt;
+                        t.uvs[1]=integers[7]-1-vertex_cnt;
+                        t.uvs[2]=integers[8]-1-vertex_cnt;
+                    }
+					t.material = material;
 					//geo.triangles.push_back ( tri );
 					triangles.push_back(t);
 					//state_before = state;
@@ -821,7 +952,8 @@ namespace Simplify
 			}
 		}
 		fclose(fn);
-		//printf("load_obj: vertices = %lu, triangles = %lu\n", vertices.size(), triangles.size() );
+
+		printf("load_obj: vertices = %lu, triangles = %lu, uvs = %lu\n", vertices.size(), triangles.size(), uvs.size() );
 	} // load_obj()
 
 	// Optional : Store as OBJ
@@ -829,19 +961,43 @@ namespace Simplify
 	void write_obj(const char* filename)
 	{
 		FILE *file=fopen(filename, "w");
+        int cur_material = -1;
 		if (!file)
 		{
 			printf("write_obj: can't write data file \"%s\".\n", filename);
 			exit(0);
 		}
+        if (!mtllib.empty())
+        {
+            fprintf(file, "mtllib %s\n", mtllib);
+        }
 		loopi(0,vertices.size())
 		{
 			//fprintf(file, "v %lf %lf %lf\n", vertices[i].p.x,vertices[i].p.y,vertices[i].p.z);
 			fprintf(file, "v %g %g %g\n", vertices[i].p.x,vertices[i].p.y,vertices[i].p.z); //more compact: remove trailing zeros
 		}
+        loopi(0,triangles.size()) if(!triangles[i].deleted)
+		{
+            fprintf(file, "vt %g %g\n", triangles[i].uv[0].x, triangles[i].uv[0].y);
+            fprintf(file, "vt %g %g\n", triangles[i].uv[1].x, triangles[i].uv[1].y);
+            fprintf(file, "vt %g %g\n", triangles[i].uv[2].x, triangles[i].uv[2].y);
+        }
+
+        int uv = 1;
 		loopi(0,triangles.size()) if(!triangles[i].deleted)
 		{
-			fprintf(file, "f %d %d %d\n", triangles[i].v[0]+1, triangles[i].v[1]+1, triangles[i].v[2]+1);
+            if (triangles[i].material != cur_material)
+            {
+                cur_material = triangles[i].material;
+                fprintf(file, "usemtl %s\n", materials[triangles[i].material]);
+            }
+            if (uvs.size() > 0)
+            {
+                fprintf(file, "f %d/%d %d/%d %d/%d\n", triangles[i].v[0]+1, uv, triangles[i].v[1]+1, uv+1, triangles[i].v[2]+1, uv+2);
+                uv += 3;
+            }
+            else
+			    fprintf(file, "f %d %d %d\n", triangles[i].v[0]+1, triangles[i].v[1]+1, triangles[i].v[2]+1);
 			//fprintf(file, "f %d// %d// %d//\n", triangles[i].v[0]+1, triangles[i].v[1]+1, triangles[i].v[2]+1); //more compact: remove trailing zeros
 		}
 		fclose(file);
