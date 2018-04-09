@@ -830,7 +830,7 @@ namespace Simplify
 	}
 
 	//Option : Load OBJ
-	void load_obj(const char* filename){
+	void load_obj(const char* filename, bool process_uv=false){
 		vertices.clear();
 		triangles.clear();
 		//printf ( "Loading Objects %s ... \n",filename);
@@ -848,7 +848,7 @@ namespace Simplify
 		int material = -1;
 		std::map<std::string, int> material_map;
 		std::vector<vec3f> uvs;
-		std::vector<std::vector<int>> uvMap;
+		std::vector<std::vector<int> > uvMap;
 
 		while(fgets( line, 1000, fn ) != NULL)
 		{
@@ -939,7 +939,7 @@ namespace Simplify
 					t.v[2] = integers[2]-1-vertex_cnt;
 					t.attr = 0;
 
-					if ( has_uv )
+					if ( process_uv && has_uv )
 					{
 						std::vector<int> indices;
 						indices.push_back(integers[6]-1-vertex_cnt);
@@ -958,7 +958,7 @@ namespace Simplify
 			}
 		}
 
-		if (uvs.size())
+		if ( process_uv && uvs.size() )
 		{
 			loopi(0,triangles.size())
 			{
