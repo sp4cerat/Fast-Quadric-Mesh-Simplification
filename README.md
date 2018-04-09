@@ -34,6 +34,8 @@ Surf Ice is a tool for surface rendering the cortex with overlays to illustrate 
 
 **[THREE.JS Sample using the Method](https://cdn.rawgit.com/timknip/mesh-decimate/afe5339/examples/three.js/index.html)**
 
+![img](https://i.imgur.com/3gC3npI.png)
+
 **[Live Web Version by 
 Tiger Yuhao Huang](https://myminifactory.github.io/Fast-Quadric-Mesh-Simplification/)**
 
