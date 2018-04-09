@@ -987,7 +987,7 @@ namespace Simplify
 		}
 		if (!mtllib.empty())
 		{
-			fprintf(file, "mtllib %s\n", mtllib);
+			fprintf(file, "mtllib %s\n", mtllib.c_str());
 		}
 		loopi(0,vertices.size())
 		{
@@ -1009,7 +1009,7 @@ namespace Simplify
 			if (triangles[i].material != cur_material)
 			{
 				cur_material = triangles[i].material;
-				fprintf(file, "usemtl %s\n", materials[triangles[i].material]);
+				fprintf(file, "usemtl %s\n", materials[triangles[i].material].c_str());
 			}
 			if (has_uv)
 			{
