@@ -16,7 +16,7 @@ cd $1
 
 # wget used to return 0 (success), but more recent versions
 # don't so we don't want to bail out in failure mode
-# eventhough everything is fine.
+# even though everything is fine.
 
 set +e
 

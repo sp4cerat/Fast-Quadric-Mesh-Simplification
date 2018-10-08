@@ -43,7 +43,7 @@ public:
     /// get optional scale pivot
     const vector3& getscalepivot() const;
     /// set matrix 4x4
-    void setmatrix(matrix44 matrix); //not per reference - so make shure the data is copyed
+    void setmatrix(matrix44 matrix); //not per reference - so make sure the data is copied
     /// get resulting 4x4 matrix
     const matrix44& getmatrix();
     /// return true if euler rotation is used (otherwise quaternion rotation is used)

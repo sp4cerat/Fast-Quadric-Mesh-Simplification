@@ -72,7 +72,7 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Use nonstandard varargs form for the GLU tesselator callback */
+/* Use nonstandard varargs form for the GLU tessellator callback */
 #undef HAVE_VARARGS_GLU_TESSCB
 
 /* Define to 1 if you have the <windows.h> header file. */

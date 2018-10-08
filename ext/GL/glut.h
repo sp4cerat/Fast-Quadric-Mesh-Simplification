@@ -242,7 +242,7 @@ extern void exit(int);
  glutJoystickFunc, glutForceJoystickFunc, glutStrokeWidthf,
  glutStrokeLengthf (NOT FINALIZED!).
 **/
-#ifndef GLUT_API_VERSION  /* allow this to be overriden */
+#ifndef GLUT_API_VERSION  /* allow this to be overridden */
 #define GLUT_API_VERSION                3
 #endif
 
@@ -286,7 +286,7 @@ extern void exit(int);
 
  GLUT_XLIB_IMPLEMENTATION=17 mjk's GLUT 3.8 with glutStrokeWidthf and glutStrokeLengthf
 **/
-#ifndef GLUT_XLIB_IMPLEMENTATION  /* Allow this to be overriden. */
+#ifndef GLUT_XLIB_IMPLEMENTATION  /* Allow this to be overridden. */
 #define GLUT_XLIB_IMPLEMENTATION        17
 #endif
 

@@ -367,7 +367,7 @@ public:
 		for ( uint i = 0 ; i<materials.size(); i++ )
 			if ( name.compare( materials[i].name ) == 0 ) return i;
 
-		printf("couldnt find material %s\n",name.c_str() );
+		printf("couldn't find material %s\n",name.c_str() );
 		return -1;
 	}
 	void print_materials ()
