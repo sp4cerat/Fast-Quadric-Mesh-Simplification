@@ -48,3 +48,6 @@ Tiger Yuhao Huang](https://myminifactory.github.io/Fast-Quadric-Mesh-Simplificat
 **[ Javascript Mesh Decimator by Andrew Taber / ataber](https://github.com/ataber/mesh-simplify)**
 
 **[ Javascript Mesh Decimator by Joshua Koo / zz85](https://gist.github.com/zz85/a317597912d68cf046558006d7647381)**
+
+**[ Java Mesh Decimator by Jayfella](https://hub.jmonkeyengine.org/t/isosurface-mesh-simplifier/41046)**
+
