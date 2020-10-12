@@ -925,6 +925,14 @@ namespace Simplify
 				{
 					tri_ok = true;
 					has_uv = true;
+				}else // Add Support for v/vt only meshes
+				if (sscanf(line, "f %d/%d %d/%d %d/%d",
+					&integers[0], &integers[6],
+					&integers[1], &integers[7],
+					&integers[2], &integers[8]) == 6)
+				{
+					tri_ok = true;
+					has_uv = true;
 				}
 				else
 				{
