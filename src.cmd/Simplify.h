@@ -635,7 +635,9 @@ namespace Simplify
 		if( iteration == 0 )
 		{
 			loopi(0,vertices.size())
-			vertices[i].q=SymetricMatrix(0.0);
+				vertices[i].q=SymetricMatrix(0.0);
+			loopi(0,vertices.size())
+				vertices[i].border=0;
 
 			loopi(0,triangles.size())
 			{
