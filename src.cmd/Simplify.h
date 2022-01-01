@@ -626,36 +626,6 @@ namespace Simplify
 			triangles.resize(dst);
 		}
 		//
-		// Init Quadrics by Plane & Edge Errors
-		//
-		// required at the beginning ( iteration == 0 )
-		// recomputing during the simplification is not required,
-		// but mostly improves the result for closed meshes
-		//
-		if( iteration == 0 )
-		{
-			loopi(0,vertices.size())
-			vertices[i].q=SymetricMatrix(0.0);
-
-			loopi(0,triangles.size())
-			{
-				Triangle &t=triangles[i];
-				vec3f n,p[3];
-				loopj(0,3) p[j]=vertices[t.v[j]].p;
-				n.cross(p[1]-p[0],p[2]-p[0]);
-				n.normalize();
-				t.n=n;
-				loopj(0,3) vertices[t.v[j]].q =
-					vertices[t.v[j]].q+SymetricMatrix(n.x,n.y,n.z,-n.dot(p[0]));
-			}
-			loopi(0,triangles.size())
-			{
-				// Calc Edge Error
-				Triangle &t=triangles[i];vec3f p;
-				loopj(0,3) t.err[j]=calculate_error(t.v[j],t.v[(j+1)%3],p);
-				t.err[3]=min(t.err[0],min(t.err[1],t.err[2]));
-			}
-		}
 
 		// Init Reference ID list
 		loopi(0,vertices.size())
@@ -691,9 +661,16 @@ namespace Simplify
 			}
 		}
 
-		// Identify boundary : vertices[].border=0,1
+		// Init Quadrics by Plane & Edge Errors
+		//
+		// required at the beginning ( iteration == 0 )
+		// recomputing during the simplification is not required,
+		// but mostly improves the result for closed meshes
+		//
 		if( iteration == 0 )
 		{
+			// Identify boundary : vertices[].border=0,1
+
 			std::vector<int> vcount,vids;
 
 			loopi(0,vertices.size())
@@ -727,6 +704,28 @@ namespace Simplify
 				}
 				loopj(0,vcount.size()) if(vcount[j]==1)
 					vertices[vids[j]].border=1;
+			}
+			//initialize errors
+			loopi(0,vertices.size())
+				vertices[i].q=SymetricMatrix(0.0);
+
+			loopi(0,triangles.size())
+			{
+				Triangle &t=triangles[i];
+				vec3f n,p[3];
+				loopj(0,3) p[j]=vertices[t.v[j]].p;
+				n.cross(p[1]-p[0],p[2]-p[0]);
+				n.normalize();
+				t.n=n;
+				loopj(0,3) vertices[t.v[j]].q =
+					vertices[t.v[j]].q+SymetricMatrix(n.x,n.y,n.z,-n.dot(p[0]));
+			}
+			loopi(0,triangles.size())
+			{
+				// Calc Edge Error
+				Triangle &t=triangles[i];vec3f p;
+				loopj(0,3) t.err[j]=calculate_error(t.v[j],t.v[(j+1)%3],p);
+				t.err[3]=min(t.err[0],min(t.err[1],t.err[2]));
 			}
 		}
 	}
