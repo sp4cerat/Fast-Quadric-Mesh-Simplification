@@ -51,3 +51,4 @@ Tiger Yuhao Huang](https://myminifactory.github.io/Fast-Quadric-Mesh-Simplificat
 
 **[ Java Mesh Decimator by Jayfella](https://hub.jmonkeyengine.org/t/isosurface-mesh-simplifier/41046)**
 
+**[ Port from C++ to pure C by Chris Rorden](https://github.com/neurolabusc/nii2mesh). Includes routines for Marching Cubes and Laplacian HC mesh smoothing.**
