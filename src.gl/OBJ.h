@@ -467,7 +467,7 @@ public:
 		if ((fn = fopen(filename, "rb")) == NULL)
 		{
 			printf ( "File %s not found!\n" ,filename );
-			while(1);
+			exit(1);
 		}
 		char line[1000];
 		memset ( line,0,1000 );
@@ -571,7 +571,7 @@ public:
 		if ((fn = fopen(filename, "rb")) == NULL)
 		{
 			printf ( "File %s not found!\n" ,filename );
-			while(1);
+			exit(1);
 		}
 		char line[1000];
 		memset ( line,0,1000 );
@@ -660,7 +660,7 @@ public:
 				{
 					printf("unrecognized sequence\n");
 					printf("%s\n",line);
-					while(1);
+					exit(1);
 				}
 
 				if ( tri_ok )
@@ -729,7 +729,7 @@ public:
 						
 						//printf("Available are:\n");
 						//this->print_materials();
-						//while(1);;
+						//exit(1);
 					}
 				}
 			}

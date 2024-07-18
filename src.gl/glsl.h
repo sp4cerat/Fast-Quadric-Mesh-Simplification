@@ -29,7 +29,7 @@ public:
 			glGetShaderInfoLog(handle, sizeof(compilerSpew), 0, compilerSpew);
 			printf("Shader %s\n%s\ncompileSuccess=%d\n",filename,compilerSpew,compileSuccess);
 			CHECK_GL_ERROR();
-			while(1);;
+			exit(1);
 		}
 		handles.push_back(handle);
 	}

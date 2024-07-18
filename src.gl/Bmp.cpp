@@ -539,7 +539,7 @@ void Bmp::load(const char *filename)
 	if(!i.Load(filename))
 	{
 		printf("Bmp::load file %s not found\n",filename);
-		while(1);;
+		exit(1);
 		return;
 	}
 	
@@ -547,7 +547,7 @@ void Bmp::load(const char *filename)
 	if(i.GetData()==0)
 	{
 		printf("Bmp::load 0 pointer\n");
-		while(1);;
+		exit(1);
 	}
 	
 	if(i.Format()==IL_RGB)	i.Convert(IL_BGR);

@@ -872,16 +872,18 @@ namespace Simplify
 			if ( line[0] == 'v' && line[1] == 't' )
 			{
 				if ( line[2] == ' ' )
-				if(sscanf(line,"vt %lf %lf",
-					&uv.x,&uv.y)==2)
 				{
-					uv.z = 0;
-					uvs.push_back(uv);
-				} else
-				if(sscanf(line,"vt %lf %lf %lf",
-					&uv.x,&uv.y,&uv.z)==3)
-				{
-					uvs.push_back(uv);
+					if(sscanf(line,"vt %lf %lf",
+						&uv.x,&uv.y)==2)
+					{
+						uv.z = 0;
+						uvs.push_back(uv);
+					} else
+					if(sscanf(line,"vt %lf %lf %lf",
+						&uv.x,&uv.y,&uv.z)==3)
+					{
+						uvs.push_back(uv);
+					}
 				}
 			}
 			else if ( line[0] == 'v' )
@@ -937,7 +939,7 @@ namespace Simplify
 				{
 					printf("unrecognized sequence\n");
 					printf("%s\n",line);
-					while(1);
+					exit(1);
 				}
 				if ( tri_ok )
 				{
