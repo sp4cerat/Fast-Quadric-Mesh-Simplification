@@ -39,62 +39,62 @@ double x, y, z;
 
 struct vec3f
 {
-    double x, y, z;
+	double x, y, z;
 
-    inline vec3f( void ) {}
+	inline vec3f( void ) {}
 
-    //inline vec3f operator =( vector3 a )
+	//inline vec3f operator =( vector3 a )
 	// { vec3f b ; b.x = a.x; b.y = a.y; b.z = a.z; return b;}
 
-    inline vec3f( vector3 a )
+	inline vec3f( vector3 a )
 	 { x = a.x; y = a.y; z = a.z; }
 
-    inline vec3f( const double X, const double Y, const double Z )
-    { x = X; y = Y; z = Z; }
+	inline vec3f( const double X, const double Y, const double Z )
+	{ x = X; y = Y; z = Z; }
 
-    inline vec3f operator + ( const vec3f& a ) const
-    { return vec3f( x + a.x, y + a.y, z + a.z ); }
+	inline vec3f operator + ( const vec3f& a ) const
+	{ return vec3f( x + a.x, y + a.y, z + a.z ); }
 
 	inline vec3f operator += ( const vec3f& a ) const
-    { return vec3f( x + a.x, y + a.y, z + a.z ); }
+	{ return vec3f( x + a.x, y + a.y, z + a.z ); }
 
-    inline vec3f operator * ( const double a ) const
-    { return vec3f( x * a, y * a, z * a ); }
+	inline vec3f operator * ( const double a ) const
+	{ return vec3f( x * a, y * a, z * a ); }
 
-    inline vec3f operator * ( const vec3f a ) const
-    { return vec3f( x * a.x, y * a.y, z * a.z ); }
+	inline vec3f operator * ( const vec3f a ) const
+	{ return vec3f( x * a.x, y * a.y, z * a.z ); }
 
-    inline vec3f v3 () const
-    { return vec3f( x , y, z ); }
+	inline vec3f v3 () const
+	{ return vec3f( x , y, z ); }
 
-    inline vec3f operator = ( const vector3 a )
-    { x=a.x;y=a.y;z=a.z;return *this; }
+	inline vec3f operator = ( const vector3 a )
+	{ x=a.x;y=a.y;z=a.z;return *this; }
 
-    inline vec3f operator = ( const vec3f a )
-    { x=a.x;y=a.y;z=a.z;return *this; }
+	inline vec3f operator = ( const vec3f a )
+	{ x=a.x;y=a.y;z=a.z;return *this; }
 
-    inline vec3f operator / ( const vec3f a ) const
-    { return vec3f( x / a.x, y / a.y, z / a.z ); }
+	inline vec3f operator / ( const vec3f a ) const
+	{ return vec3f( x / a.x, y / a.y, z / a.z ); }
 
-    inline vec3f operator - ( const vec3f& a ) const
-    { return vec3f( x - a.x, y - a.y, z - a.z ); }
+	inline vec3f operator - ( const vec3f& a ) const
+	{ return vec3f( x - a.x, y - a.y, z - a.z ); }
 
-    inline vec3f operator / ( const double a ) const
-    { return vec3f( x / a, y / a, z / a ); }
+	inline vec3f operator / ( const double a ) const
+	{ return vec3f( x / a, y / a, z / a ); }
 
-    inline double dot( const vec3f& a ) const
-    { return a.x*x + a.y*y + a.z*z; }
+	inline double dot( const vec3f& a ) const
+	{ return a.x*x + a.y*y + a.z*z; }
 
-    inline vec3f cross( const vec3f& a , const vec3f& b )
-    {
+	inline vec3f cross( const vec3f& a , const vec3f& b )
+	{
 		x = a.y * b.z - a.z * b.y;
 		y = a.z * b.x - a.x * b.z;
 		z = a.x * b.y - a.y * b.x;
 		return *this;
 	}
 
-    inline double angle( const vec3f& v )
-    {
+	inline double angle( const vec3f& v )
+	{
 		vec3f a = v , b = *this;
 		double dot = v.x*x + v.y*y + v.z*z;
 		double len = a.length() * b.length();
@@ -105,8 +105,8 @@ struct vec3f
 		return (double) acos ( input );
 	}
 
-    inline double angle2( const vec3f& v , const vec3f& w )
-    {
+	inline double angle2( const vec3f& v , const vec3f& w )
+	{
 		vec3f a = v , b= *this;
 		double dot = a.x*b.x + a.y*b.y + a.z*b.z;
 		double len = a.length() * b.length();
@@ -120,22 +120,22 @@ struct vec3f
 		return (double) acos ( dot  / len );
 	}
 
-    inline vec3f rot_x( double a )
-    {
+	inline vec3f rot_x( double a )
+	{
 		double yy = cos ( a ) * y + sin ( a ) * z;
 		double zz = cos ( a ) * z - sin ( a ) * y;
 		y = yy; z = zz;
 		return *this;
 	}
-    inline vec3f rot_y( double a )
-    {
+	inline vec3f rot_y( double a )
+	{
 		double xx = cos ( -a ) * x + sin ( -a ) * z;
 		double zz = cos ( -a ) * z - sin ( -a ) * x;
 		x = xx; z = zz;
 		return *this;
 	}
-    inline void clamp( double min, double max )
-    {
+	inline void clamp( double min, double max )
+	{
 		if (x<min) x=min;
 		if (y<min) y=min;
 		if (z<min) z=min;
@@ -143,18 +143,18 @@ struct vec3f
 		if (y>max) y=max;
 		if (z>max) z=max;
 	}
-    inline vec3f rot_z( double a )
-    {
+	inline vec3f rot_z( double a )
+	{
 		double yy = cos ( a ) * y + sin ( a ) * x;
 		double xx = cos ( a ) * x - sin ( a ) * y;
 		y = yy; x = xx;
 		return *this;
 	}
-    inline vec3f invert()
+	inline vec3f invert()
 	{
 		x=-x;y=-y;z=-z;return *this;
 	}
-    inline vec3f frac()
+	inline vec3f frac()
 	{
 		return vec3f(
 			x-double(int(x)),
@@ -163,7 +163,7 @@ struct vec3f
 			);
 	}
 
-    inline vec3f integer()
+	inline vec3f integer()
 	{
 		return vec3f(
 			double(int(x)),
@@ -172,13 +172,13 @@ struct vec3f
 			);
 	}
 
-    inline double length() const
-    {
+	inline double length() const
+	{
 		return (double)sqrt(x*x + y*y + z*z);
 	}
 
-    inline vec3f normalize( double desired_length = 1 )
-    {
+	inline vec3f normalize( double desired_length = 1 )
+	{
 		double square = sqrt(x*x + y*y + z*z);
 		/*
 		if (square <= 0.00001f )
@@ -191,7 +191,7 @@ struct vec3f
 
 		return *this;
 	}
-    static vec3f normalize( vec3f a );
+	static vec3f normalize( vec3f a );
 
 	static void random_init();
 	static double random_double();
@@ -254,13 +254,13 @@ class SymetricMatrix {
 	SymetricMatrix(double c=0) { loopi(0,10) m[i] = c;  }
 
 	SymetricMatrix(	double m11, double m12, double m13, double m14,
-			            double m22, double m23, double m24,
-			                        double m33, double m34,
-			                                    double m44) {
-			 m[0] = m11;  m[1] = m12;  m[2] = m13;  m[3] = m14;
-			              m[4] = m22;  m[5] = m23;  m[6] = m24;
-			                           m[7] = m33;  m[8] = m34;
-			                                        m[9] = m44;
+		            double m22, double m23, double m24,
+		                        double m33, double m34,
+		                                    double m44) {
+		m[0] = m11;  m[1] = m12;  m[2] = m13;  m[3] = m14;
+		             m[4] = m22;  m[5] = m23;  m[6] = m24;
+		                          m[7] = m33;  m[8] = m34;
+		                                       m[9] = m44;
 	}
 
 	// Make plane
@@ -321,8 +321,8 @@ namespace Simplify
 	std::vector<Triangle> triangles;
 	std::vector<Vertex> vertices;
 	std::vector<Ref> refs;
-    std::string mtllib;
-    std::vector<std::string> materials;
+	std::string mtllib;
+	std::vector<std::string> materials;
 
 	// Helper functions
 
@@ -346,9 +346,9 @@ namespace Simplify
 	{
 		// init
 		loopi(0,triangles.size())
-        {
-            triangles[i].deleted=0;
-        }
+		{
+			triangles[i].deleted=0;
+		}
 
 		// main iteration loop
 		int deleted_triangles=0;
@@ -568,7 +568,7 @@ namespace Simplify
 		return false;
 	}
 
-    // update_uvs
+	// update_uvs
 
 	void update_uvs(int i0,const Vertex &v,const vec3f &p,std::vector<int> &deleted)
 	{
@@ -778,7 +778,7 @@ namespace Simplify
 		// compute interpolated vertex
 
 		SymetricMatrix q = vertices[id_v1].q + vertices[id_v2].q;
-		bool   border = vertices[id_v1].border & vertices[id_v2].border;
+		bool border = vertices[id_v1].border & vertices[id_v2].border;
 		double error=0;
 		double det = q.det(0, 1, 2, 1, 4, 5, 2, 5, 7);
 		if ( det != 0 && !border )
@@ -900,7 +900,7 @@ namespace Simplify
 			{
 				Triangle t;
 				bool tri_ok = false;
-                bool has_uv = false;
+				bool has_uv = false;
 
 				if(sscanf(line,"f %d %d %d",
 					&integers[0],&integers[1],&integers[2])==3)
@@ -966,7 +966,6 @@ namespace Simplify
 				}
 			}
 		}
-
 		if ( process_uv && uvs.size() )
 		{
 			loopi(0,triangles.size())
@@ -1033,5 +1032,128 @@ namespace Simplify
 		}
 		fclose(file);
 	}
+
+	#ifdef _MSC_VER
+	#pragma pack(2)
+	struct mz3hdr {
+		uint16_t SIGNATURE, ATTR;
+		uint32_t NFACE, NVERT, NSKIP;
+	};
+	#pragma pack()	
+	#else
+	struct __attribute__((__packed__)) mz3hdr {
+		uint16_t SIGNATURE, ATTR;
+		uint32_t NFACE, NVERT, NSKIP;
+	};
+	#endif
+
+	void load_mz3(const char* filename) {
+		vertices.clear();
+		triangles.clear();
+		int material = -1;
+		std::map<std::string, int> material_map;
+		std::vector<vec3f> uvs;
+		std::vector<std::vector<int> > uvMap;
+		FILE *fp = fopen(filename,"rb");
+		struct mz3hdr h;
+		size_t bytes_read = fread(&h, sizeof(struct mz3hdr), 1, fp);
+		if (bytes_read <= 0) {
+			printf("Unable to read %s\n", filename);
+			exit(EXIT_FAILURE);
+		}
+		uint16_t sig = 23117;
+		if (sig != h.SIGNATURE) {
+			fclose(fp);
+			printf("Unable to read mz3 (unable to read gz compressed) %s\n", filename);
+			exit(EXIT_FAILURE);
+		}
+		triangles.resize(h.NFACE);
+		vertices.resize(h.NVERT);
+		fseek(fp, (int)(sizeof(struct mz3hdr) + h.NSKIP), SEEK_SET);
+		uint32_t tribytes = h.NFACE * 3 * sizeof(uint32_t);
+		uint32_t *tris = (uint32_t *) malloc(tribytes);
+		bytes_read = fread(tris, tribytes, 1, fp);
+		if (bytes_read <= 0) {
+			printf("Unable to read triangles %s\n", filename);
+			exit(EXIT_FAILURE);
+		}
+		uint32_t vertbytes32 = h.NVERT * 3 * sizeof(float);
+		float * verts32 = (float *) malloc(vertbytes32);
+		bytes_read = fread(verts32, vertbytes32, 1, fp);
+		if (bytes_read <= 0) {
+			printf("Unable to read vertices %s\n", filename);
+			exit(EXIT_FAILURE);
+		}
+		int j = 0;
+		for (int i = 0; i < h.NVERT; i++) {
+			vertices[i].p.x = verts32[j++];
+			vertices[i].p.y = verts32[j++];
+			vertices[i].p.z = verts32[j++];
+		}
+		j = 0;
+		for (int i = 0; i < h.NFACE; i++) {
+			triangles[i].v[0] = tris[j++];
+			triangles[i].v[1] = tris[j++];
+			triangles[i].v[2] = tris[j++];
+			triangles[i].attr = 0;
+			triangles[i].material = material;
+		}
+		free(tris);
+		free(verts32);
+		fclose(fp);
+	}
+	
+	void write_mz3(const char* filename) {
+		// https://github.com/neurolabusc/surf-ice/tree/master/mz3
+		bool has_uv = (triangles.size() && (triangles[0].attr & TEXCOORD) == TEXCOORD);
+		if (has_uv) {
+			printf("write_mz3 can not store UVs (use .obj format).\n");
+		}
+		struct mz3hdr h;
+		h.SIGNATURE = 0x5A4D;
+		h.ATTR = 3;//isFACE +1 isVERT +2
+		h.NVERT = vertices.size();
+		h.NSKIP = 0;
+		h.NFACE = 0;
+		for (int i = 0; i < triangles.size(); i++) {
+			if(!triangles[i].deleted)
+				h.NFACE++;
+		}
+		if ((h.NFACE < 1) || (h.NVERT < 3)) {
+			printf("write_mz3: no surviving triangles.\n");
+			exit(1);
+		}
+		FILE *fp;
+		fp = fopen(filename, "wb");
+		if (fp == NULL) {
+			printf("write_mz3: can't write data file \"%s\".\n", filename);
+			exit(1);
+		}
+		fwrite(&h, sizeof(struct mz3hdr), 1, fp);
+		uint32_t tribytes = h.NFACE * 3 * sizeof(uint32_t);
+		uint32_t *tris = (uint32_t *) malloc(tribytes);
+		int j = 0;
+		for (int i = 0; i < triangles.size(); i++) {
+			if(triangles[i].deleted)
+				continue;
+			tris[j++] = triangles[i].v[0];
+			tris[j++] = triangles[i].v[1];
+			tris[j++] = triangles[i].v[2];
+		}
+		fwrite(tris, tribytes, 1, fp);
+		free(tris);
+		uint32_t vertbytes32 = h.NVERT * 3 * sizeof(float);
+		float * verts32 = (float *) malloc(vertbytes32);
+		j = 0;
+		for (int i = 0; i < h.NVERT; i++) {
+			verts32[j++] = vertices[i].p.x;
+			verts32[j++] = vertices[i].p.y;
+			verts32[j++] = vertices[i].p.z;
+		}
+		fwrite(verts32, vertbytes32, 1, fp);
+		free(verts32);
+		fclose(fp);
+	}
 };
+
 ///////////////////////////////////////////

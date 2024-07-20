@@ -9,12 +9,21 @@ Since I couldn't find any code that's fast, memory efficient, free and for high 
 
 **Compiling and Usage**
 
-You can compile the command line program from the `src.cmd` folder. This simple program simplifies meshes stored in [OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) format. This is a simple reader/writer, so don't try to use this tool when multiple objects are embedded into one file.
+You can compile and execute the minimal command line program:
 
 ```
-g++ Main.cpp -O3 -o simplify
-./simplify ~/dir/in.obj ~/dir/out.obj 0.2
+git clone git@github.com:sp4cerat/Fast-Quadric-Mesh-Simplification.git
+cd Fast-Quadric-Mesh-Simplification/src.cmd
+make
+./simplify ../data/wall.obj ./simple.obj 0.05
 ```
+
+Running the `simplify` executable without any arguments will provide further helpful usage instructions.
+
+This simple program simplifies meshes stored in [OBJ](https://en.wikipedia.org/wiki/Wavefront_.obj_file) format. This is a simple reader/writer, so don't try to use this tool when multiple objects are embedded into one file.
+
+Note that you can compile with `make sanitize` to create an executable with debugging capabilities. Finally, you can compile with `make wasm` to create WebAssembly code, as showcased [live demo web page](https://neurolabusc.github.io/simplifyjs/).
+
 **For Developers**
 
 The functionality is contained in Simplify.h. The function to call is *simplify_mesh(target_count)*. The code is kept pretty slim, so the main method has just around 400 lines of code.
