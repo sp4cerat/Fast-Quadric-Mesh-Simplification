@@ -37,6 +37,7 @@ The functionality is contained in Simplify.h. The function to call is *simplify_
  - [C# for .NET mesh simplification](https://github.com/Whinarn/MeshDecimator).
  - [Java mesh simplifier by Jayfella](https://hub.jmonkeyengine.org/t/isosurface-mesh-simplifier/41046).
  - JavaScript [ThreeJS](https://github.com/timknip/mesh-decimate) for native [JavaScript](https://gist.github.com/zz85/a317597912d68cf046558006d7647381) and Web Assembly implementations, illustrated with a [live demo web page](https://neurolabusc.github.io/simplifyjs/).
+ - JavaScript [live demo](https://github.com/neurolabusc/niivue-simplify) that compares four implementations of this algorithm including C++ WASM (this page), C WASM (nii2mesh), [mXrap](https://mxrap.com/js_docs/lib_QuadricMeshSimplification.html) pure JavaScript and NiiVue pure javascript. 
  - JavaScript [NiiVue](https://github.com/niivue/niivue-mesh) for converting voxels to meshes and simplifying meshes with [live demo web page](https://niivue.github.io/niivue-mesh/).
  - [JavaScript translation](https://github.com/ataber/mesh-simplify) available from [npm](https://www.npmjs.com/package/mesh-simplify).
  - [JavaScript WebAssembly](https://github.com/MyMiniFactory/Fast-Quadric-Mesh-Simplification) port with [live demo](https://myminifactory.github.io/Fast-Quadric-Mesh-Simplification/).

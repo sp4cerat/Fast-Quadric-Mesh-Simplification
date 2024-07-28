@@ -119,9 +119,9 @@ int simplify(const char* file_path, const char* export_path, float reduceFractio
 #ifdef __EMSCRIPTEN__
 
 extern "C" {
-int simplify(const char* file_path, float reduceFraction, const char* export_path) {
+int simplify(const char* file_path, float reduceFraction, const char* export_path, float agressiveness) {
 	printf("Going to simplify %s\n", file_path);
-	return simplify(file_path, export_path, reduceFraction, 7.0);// aggressive
+	return simplify(file_path, export_path, reduceFraction, agressiveness);
 }
 }
 
